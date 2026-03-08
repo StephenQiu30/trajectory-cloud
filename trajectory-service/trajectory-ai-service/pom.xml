@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.trajectory.cloud</groupId>
+        <artifactId>trajectory-service</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>trajectory-ai-service</artifactId>
+    <description>AI 服务实现</description>
+
+    <dependencies>
+        <!-- trajectory-api-ai -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-ai</artifactId>
+        </dependency>
+
+        <!-- trajectory-api-user -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-user</artifactId>
+        </dependency>
+
+        <!-- trajectory-api-log -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-log</artifactId>
+        </dependency>
+
+        <!-- trajectory-api-search -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-search</artifactId>
+        </dependency>
+
+        <!-- LangChain4j -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-dashscope</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Common Auth -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-auth</artifactId>
+        </dependency>
+
+        <!-- Common Log -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-log</artifactId>
+        </dependency>
+
+        <!-- Common MySQL -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-mysql</artifactId>
+        </dependency>
+
+        <!-- Common Cache (Rate Limiting) -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-cache</artifactId>
+        </dependency>
+
+        <!-- Common RabbitMQ -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-rabbitmq</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

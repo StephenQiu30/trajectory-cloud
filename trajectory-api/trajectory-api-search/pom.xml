@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.trajectory.cloud</groupId>
+        <artifactId>trajectory-api</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>trajectory-api-search</artifactId>
+    <name>trajectory-api-search</name>
+    <description>搜索服务 API 接口定义</description>
+
+    <dependencies>
+        <!-- trajectory-common-core -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-core</artifactId>
+        </dependency>
+
+        <!-- trajectory-api-notification -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-notification</artifactId>
+        </dependency>
+
+        <!-- trajectory-api-user -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-user</artifactId>
+        </dependency>
+
+        <!-- OpenFeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- Elasticsearch annotations -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.trajectory.cloud</groupId>
+        <artifactId>trajectory-cloud</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>trajectory-common</artifactId>
+    <packaging>pom</packaging>
+
+    <name>trajectory-common</name>
+    <description>公共模块父工程</description>
+
+    <modules>
+        <module>trajectory-common-core</module>
+        <module>trajectory-common-cache</module>
+        <module>trajectory-common-mysql</module>
+        <module>trajectory-common-auth</module>
+        <module>trajectory-common-web</module>
+        <module>trajectory-common-rabbitmq</module>
+        <module>trajectory-common-websocket</module>
+        <module>trajectory-common-log</module>
+    </modules>
+
+</project>

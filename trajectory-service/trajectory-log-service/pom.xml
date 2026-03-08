@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.trajectory.cloud</groupId>
+        <artifactId>trajectory-service</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>trajectory-log-service</artifactId>
+    <name>trajectory-log-service</name>
+    <description>日志服务 - 提供API访问日志、操作日志、用户登录日志等日志管理功能</description>
+
+    <dependencies>
+
+        <!-- Common MySQL -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-mysql</artifactId>
+        </dependency>
+
+        <!-- Common Cache -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-cache</artifactId>
+        </dependency>
+
+        <!-- Common Auth -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-auth</artifactId>
+        </dependency>
+
+        <!-- API Log -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-log</artifactId>
+        </dependency>
+
+        <!-- API User -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-api-user</artifactId>
+        </dependency>
+
+        <!-- RabbitMQ Common -->
+        <dependency>
+            <groupId>com.trajectory.cloud</groupId>
+            <artifactId>trajectory-common-rabbitmq</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

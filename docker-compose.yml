@@ -1,0 +1,173 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: trajectory-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: trajectory_cloud
+      TZ: Asia/Shanghai
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max_connections=1000
+    networks:
+      - trajectory-network
+
+  # Redis 缓存
+  redis:
+    image: redis:7.0
+    container_name: trajectory-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - trajectory-network
+
+  # Nacos 注册中心和配置中心
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    container_name: trajectory-nacos
+    restart: always
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_DB_NAME: nacos_config
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: root
+      NACOS_AUTH_ENABLE: true
+      NACOS_AUTH_TOKEN: SecretKey012345678901234567890123456789012345678901234567890123456789
+      NACOS_AUTH_IDENTITY_KEY: nacos
+      NACOS_AUTH_IDENTITY_VALUE: nacos
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+    volumes:
+      - nacos-data:/home/nacos/data
+      - nacos-logs:/home/nacos/logs
+    depends_on:
+      - mysql
+    networks:
+      - trajectory-network
+
+  # RabbitMQ 消息队列
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: trajectory-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_DEFAULT_VHOST: trajectory-cloud
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - trajectory-network
+
+  # Elasticsearch 搜索引擎（含 IK Analysis 中文分词插件）
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch
+      dockerfile: Dockerfile
+    image: elasticsearch-ik:8.19.10
+    container_name: trajectory-elasticsearch
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      xpack.security.enabled: false
+      xpack.security.http.ssl.enabled: false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - trajectory-network
+
+  # Seata Server (分布式事务)
+  seata-server:
+    image: apache/seata-server:2.2.0
+    container_name: trajectory-seata
+    restart: always
+    ports:
+      - "28091:28091"
+      - "27091:7091"
+    environment:
+      - SEATA_IP=127.0.0.1
+      - SEATA_PORT=28091
+      # 注册中心配置
+      - REGISTRY_TYPE=nacos
+      - REGISTRY_NACOS_SERVER_ADDR=nacos:8848
+      - REGISTRY_NACOS_NAMESPACE=trajectory-cloud
+      - REGISTRY_NACOS_GROUP=DEFAULT_GROUP
+      - REGISTRY_NACOS_USERNAME=nacos
+      - REGISTRY_NACOS_PASSWORD=nacos
+      # 配置中心配置
+      - CONFIG_TYPE=nacos
+      - CONFIG_NACOS_SERVER_ADDR=nacos:8848
+      - CONFIG_NACOS_NAMESPACE=trajectory-cloud
+      - CONFIG_NACOS_GROUP=DEFAULT_GROUP
+      - CONFIG_NACOS_USERNAME=nacos
+      - CONFIG_NACOS_PASSWORD=nacos
+      # 显式指定配置 DataId
+      - CONFIG_NACOS_DATA_ID=seata.properties
+    depends_on:
+      - nacos
+      - mysql
+    networks:
+      - trajectory-network
+
+  # Nginx (可选，用于文件服务)
+  nginx:
+    image: nginx:latest
+    container_name: trajectory-nginx
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - nginx-data:/usr/share/nginx/html
+      - nginx-logs:/var/log/nginx
+    networks:
+      - trajectory-network
+    profiles:
+      - optional
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  nacos-data:
+    driver: local
+  nacos-logs:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  nginx-data:
+    driver: local
+  nginx-logs:
+    driver: local
+
+networks:
+  trajectory-network:
+    driver: bridge
