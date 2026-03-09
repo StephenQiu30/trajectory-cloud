@@ -71,29 +71,29 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">轨迹-基于AIGC的数据可视化平台</div>
-        </div>
-
-        <div class="content">
-            <p>您好，</p>
-            <p>您正在进行<strong th:text="${action}">登录</strong>操作，验证码如下：</p>
-
-            <div class="code-box">
-                <div class="code" th:text="${code}">123456</div>
-            </div>
-
-            <p>验证码有效期为 <strong th:text="${minutes}">5</strong> 分钟，请尽快完成验证。</p>
-
-            <p class="warning">如果这不是您的操作，请忽略此邮件。</p>
-        </div>
-
-        <div class="footer">
-            <p>此邮件由系统自动发送，请勿回复。</p>
-            <p>&copy; 2026 轨迹-基于AIGC的数据可视化平台. All rights reserved.</p>
-        </div>
+<div class="container">
+    <div class="header">
+        <div class="logo">轨迹-基于AIGC的数据可视化平台</div>
     </div>
+
+    <div class="content">
+        <p>您好，</p>
+        <p>您正在进行<strong th:text="${action}">登录</strong>操作，验证码如下：</p>
+
+        <div class="code-box">
+            <div class="code" th:text="${code}">123456</div>
+        </div>
+
+        <p>验证码有效期为 <strong th:text="${minutes}">5</strong> 分钟，请尽快完成验证。</p>
+
+        <p class="warning">如果这不是您的操作，请忽略此邮件。</p>
+    </div>
+
+    <div class="footer">
+        <p>此邮件由系统自动发送，请勿回复。</p>
+        <p>&copy; 2026 轨迹-基于AIGC的数据可视化平台. All rights reserved.</p>
+    </div>
+</div>
 </body>
 
 </html>

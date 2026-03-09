@@ -69,7 +69,7 @@ public class SmartAnalysisController {
     @OperationLog(module = "BI 管理", action = "智能数据分析 (同步)")
     @Operation(summary = "智能分析 (同步)", description = "上传 Excel 进行智能分析并返回结果")
     public BaseResponse<Chart> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
-            ChartGenRequest chartGenRequest) {
+                                            ChartGenRequest chartGenRequest) {
         log.info("智能分析 (同步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
         String name = chartGenRequest.getName();
         String goal = chartGenRequest.getGoal();
@@ -157,7 +157,7 @@ public class SmartAnalysisController {
     @OperationLog(module = "BI 管理", action = "智能数据分析 (异步)")
     @Operation(summary = "智能分析 (异步)", description = "上传 Excel 进行智能分析 (异步处理)")
     public BaseResponse<Long> genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
-            ChartGenRequest chartGenRequest) {
+                                                ChartGenRequest chartGenRequest) {
         log.info("智能分析 (异步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
         String name = chartGenRequest.getName();
         String goal = chartGenRequest.getGoal();

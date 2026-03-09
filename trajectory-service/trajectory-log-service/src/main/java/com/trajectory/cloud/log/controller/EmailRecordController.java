@@ -1,11 +1,11 @@
 package com.trajectory.cloud.log.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
-import com.trajectory.cloud.common.auth.annotation.InternalAuth;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.trajectory.cloud.api.log.model.dto.email.EmailRecordAddRequest;
 import com.trajectory.cloud.api.log.model.dto.email.EmailRecordQueryRequest;
 import com.trajectory.cloud.api.log.model.vo.EmailRecordVO;
+import com.trajectory.cloud.common.auth.annotation.InternalAuth;
 import com.trajectory.cloud.common.common.*;
 import com.trajectory.cloud.common.constants.UserConstant;
 import com.trajectory.cloud.common.exception.BusinessException;

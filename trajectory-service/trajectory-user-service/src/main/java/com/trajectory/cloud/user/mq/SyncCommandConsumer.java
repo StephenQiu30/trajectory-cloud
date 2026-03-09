@@ -30,7 +30,7 @@ public class SyncCommandConsumer {
 
     @RabbitListener(bindings = @QueueBinding(value = @Queue(value = RabbitMqConstant.SYNC_COMMAND_QUEUE_USER, durable = "true"), exchange = @Exchange(value = RabbitMqConstant.SYNC_COMMAND_EXCHANGE, type = ExchangeTypes.TOPIC), key = RabbitMqConstant.SYNC_COMMAND_ROUTING_KEY_USER), ackMode = "MANUAL")
     public void receiveSyncCommand(RabbitMessage rabbitMessage, Channel channel,
-            Message msg) throws IOException {
+                                   Message msg) throws IOException {
         if (rabbitMessage == null) {
             log.error("[SyncCommandConsumer] 接收到空消息包");
             return;

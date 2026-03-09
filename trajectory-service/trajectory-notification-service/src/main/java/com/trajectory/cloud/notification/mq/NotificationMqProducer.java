@@ -1,8 +1,8 @@
 package com.trajectory.cloud.notification.mq;
 
 import com.trajectory.cloud.api.notification.model.vo.NotificationVO;
-import com.trajectory.cloud.common.rabbitmq.model.NotificationMessage;
 import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
+import com.trajectory.cloud.common.rabbitmq.model.NotificationMessage;
 import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

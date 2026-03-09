@@ -97,34 +97,34 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">轨迹-基于AIGC的数据可视化平台</div>
-        </div>
-
-        <div class="content">
-            <span class="notification-badge" th:classappend="${'badge-' + type}" th:text="${typeLabel}">通知</span>
-
-            <h2 th:text="${title}">系统通知</h2>
-
-            <div class="message-box">
-                <p th:utext="${message}">这是一条系统通知消息。</p>
-            </div>
-
-            <div th:if="${actionUrl}" style="text-align: center;">
-                <a th:href="${actionUrl}" class="button" th:text="${actionText}">查看详情</a>
-            </div>
-
-            <p th:if="${timestamp}" style="color: #999; font-size: 14px;">
-                发送时间：<span th:text="${#temporals.format(timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-02-09 22:00:00</span>
-            </p>
-        </div>
-
-        <div class="footer">
-            <p>此邮件由系统自动发送，请勿回复。</p>
-            <p>&copy; 2026 轨迹-基于AIGC的数据可视化平台. All rights reserved.</p>
-        </div>
+<div class="container">
+    <div class="header">
+        <div class="logo">轨迹-基于AIGC的数据可视化平台</div>
     </div>
+
+    <div class="content">
+        <span class="notification-badge" th:classappend="${'badge-' + type}" th:text="${typeLabel}">通知</span>
+
+        <h2 th:text="${title}">系统通知</h2>
+
+        <div class="message-box">
+            <p th:utext="${message}">这是一条系统通知消息。</p>
+        </div>
+
+        <div th:if="${actionUrl}" style="text-align: center;">
+            <a th:href="${actionUrl}" class="button" th:text="${actionText}">查看详情</a>
+        </div>
+
+        <p th:if="${timestamp}" style="color: #999; font-size: 14px;">
+            发送时间：<span th:text="${#temporals.format(timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-02-09 22:00:00</span>
+        </p>
+    </div>
+
+    <div class="footer">
+        <p>此邮件由系统自动发送，请勿回复。</p>
+        <p>&copy; 2026 轨迹-基于AIGC的数据可视化平台. All rights reserved.</p>
+    </div>
+</div>
 </body>
 
 </html>

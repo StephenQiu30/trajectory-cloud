@@ -2,8 +2,8 @@ package com.trajectory.cloud.search.job;
 
 import com.trajectory.cloud.common.rabbitmq.enums.EsSyncDataTypeEnum;
 import com.trajectory.cloud.common.rabbitmq.enums.EsSyncTypeEnum;
-import com.trajectory.cloud.common.rabbitmq.model.SyncCommandMessage;
 import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
+import com.trajectory.cloud.common.rabbitmq.model.SyncCommandMessage;
 import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

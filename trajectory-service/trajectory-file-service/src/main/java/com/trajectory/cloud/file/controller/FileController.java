@@ -4,8 +4,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.io.FileUtil;
 import com.trajectory.cloud.api.file.model.dto.FileUploadLogDTO;
 import com.trajectory.cloud.api.file.model.dto.FileUploadRequest;
-import com.trajectory.cloud.file.config.properties.FileStorageProperties;
-
 import com.trajectory.cloud.api.file.model.enums.FileUploadBizEnum;
 import com.trajectory.cloud.api.file.model.vo.FileUploadVO;
 import com.trajectory.cloud.common.common.BaseResponse;
@@ -14,6 +12,7 @@ import com.trajectory.cloud.common.common.ResultUtils;
 import com.trajectory.cloud.common.common.ThrowUtils;
 import com.trajectory.cloud.common.exception.BusinessException;
 import com.trajectory.cloud.common.log.annotation.OperationLog;
+import com.trajectory.cloud.file.config.properties.FileStorageProperties;
 import com.trajectory.cloud.file.service.FileStorageService;
 import com.trajectory.cloud.file.service.FileUploadRecordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,8 +63,8 @@ public class FileController {
     @Operation(summary = "文件上传", description = "统一样式的文件上传接口，支持按业务类型进行校验")
     @OperationLog(module = "文件管理", action = "上传文件")
     public BaseResponse<FileUploadVO> addFile(@RequestPart("file") MultipartFile multipartFile,
-            FileUploadRequest fileUploadRequest,
-            HttpServletRequest request) {
+                                              FileUploadRequest fileUploadRequest,
+                                              HttpServletRequest request) {
         // 校验文件不为空
         ThrowUtils.throwIf(multipartFile == null || multipartFile.isEmpty(), ErrorCode.PARAMS_ERROR, "文件不能为空");
         // 校验业务参数不为空

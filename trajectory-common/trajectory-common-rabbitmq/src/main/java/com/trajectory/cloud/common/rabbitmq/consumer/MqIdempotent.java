@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * @author StephenQiu30
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface MqIdempotent {

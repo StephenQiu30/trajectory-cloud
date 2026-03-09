@@ -43,8 +43,8 @@ public class UserEmailServiceImpl implements UserEmailService {
         emailCodeRequest.setEmail(normalizedEmail);
         emailCodeRequest.setClientIp(clientIp);
         BaseResponse<EmailCodeVO> sendResponse = mailFeignClient.addEmailCode(emailCodeRequest);
-        ThrowUtils.throwIf(sendResponse == null || sendResponse.getData() == null 
-                || sendResponse.getData().getExpireTime() == null, ErrorCode.OPERATION_ERROR,
+        ThrowUtils.throwIf(sendResponse == null || sendResponse.getData() == null
+                        || sendResponse.getData().getExpireTime() == null, ErrorCode.OPERATION_ERROR,
                 "发送验证码失败");
         return sendResponse.getData().getExpireTime();
     }

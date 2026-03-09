@@ -124,7 +124,7 @@ public class MailController {
     @OperationLog(module = "邮件管理", action = "申请验证码")
     @Operation(summary = "申请邮箱验证码", description = "业务级验证码申请接口，集成限流与防爆破逻辑")
     public BaseResponse<EmailCodeVO> addEmailCode(@RequestBody EmailCodeRequest request,
-            HttpServletRequest httpRequest) {
+                                                  HttpServletRequest httpRequest) {
         ThrowUtils.throwIf(request == null || httpRequest == null, ErrorCode.PARAMS_ERROR);
         // 通过工具类获取真实客户端 IP
         request.setClientIp(IpUtils.getClientIp(httpRequest));

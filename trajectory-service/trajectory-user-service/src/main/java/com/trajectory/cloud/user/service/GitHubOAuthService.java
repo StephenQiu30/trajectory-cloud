@@ -19,7 +19,7 @@ public interface GitHubOAuthService {
      *
      * @param state 回调返回的 state 值
      * @throws com.trajectory.cloud.common.exception.BusinessException 如果 state
-     *                                                              不合法或已过期，则抛出异常
+     *                                                                 不合法或已过期，则抛出异常
      */
     void validateAndConsumeState(String state);
 }

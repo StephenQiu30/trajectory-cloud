@@ -11,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * @author StephenQiu30
  */
-@SpringBootApplication(scanBasePackages = { "com.trajectory.cloud.ai", "com.trajectory.cloud.common" })
+@SpringBootApplication(scanBasePackages = {"com.trajectory.cloud.ai", "com.trajectory.cloud.common"})
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.trajectory.cloud.api")
 @MapperScan("com.trajectory.cloud.ai.mapper")

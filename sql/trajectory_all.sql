@@ -39,7 +39,10 @@ CREATE TABLE `user`
     KEY `idx_user_email_is_delete` (`user_email`, `is_delete`) COMMENT '用户邮箱删除状态索引',
     KEY `idx_github_id_is_delete` (`github_id`, `is_delete`) COMMENT 'GitHub ID删除状态索引',
     KEY `idx_wx_union_id_is_delete` (`wx_union_id`, `is_delete`) COMMENT '微信 UnionID删除状态索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '用户表';
 
 -- ============================================
 -- 通知表
@@ -68,7 +71,10 @@ CREATE TABLE `notification`
     KEY `idx_is_read` (`is_read`) COMMENT '已读状态索引',
     KEY `idx_create_time` (`create_time`) COMMENT '创建时间索引',
     KEY `idx_user_id_is_read_create_time` (`user_id`, `is_read`, `create_time` DESC) COMMENT '用户未读通知按时间倒序索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通知表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '通知表';
 
 -- ============================================
 -- 接口访问日志表
@@ -99,7 +105,10 @@ CREATE TABLE `api_access_log`
     KEY `idx_client_ip` (`client_ip`) COMMENT '客户端IP索引',
     KEY `idx_create_time` (`create_time`) COMMENT '创建时间索引',
     KEY `idx_trace_id` (`trace_id`) COMMENT '链路追踪ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '接口访问日志表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '接口访问日志表';
 
 -- ============================================
 -- 邮件记录表
@@ -130,7 +139,10 @@ CREATE TABLE `email_record`
     KEY `idx_to_email` (`to_email`),
     KEY `idx_biz_id` (`biz_id`),
     KEY `idx_status_create_time` (`status`, `create_time` DESC)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '邮件记录表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '邮件记录表';
 
 -- ============================================
 -- 文件上传记录表
@@ -159,7 +171,10 @@ CREATE TABLE `file_upload_record`
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`),
     KEY `idx_md5` (`md5`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文件上传记录表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '文件上传记录表';
 
 -- ============================================
 -- 操作日志表
@@ -185,7 +200,10 @@ CREATE TABLE `operation_log`
     PRIMARY KEY (`id`),
     KEY `idx_operator_id` (`operator_id`),
     KEY `idx_module` (`module`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志表';
 
 -- ============================================
 -- 用户登录日志表
@@ -207,7 +225,10 @@ CREATE TABLE `user_login_log`
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`),
     KEY `idx_account` (`account`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户登录日志表';
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '用户登录日志表';
 
 -- ============================================
 -- 图表信息表
@@ -230,4 +251,6 @@ CREATE TABLE `chart`
     `is_delete`    tinyint      NOT NULL DEFAULT 0 COMMENT '是否删除',
     PRIMARY KEY (`id`),
     KEY `idx_user_id` (`user_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '图表信息表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT = '图表信息表';
