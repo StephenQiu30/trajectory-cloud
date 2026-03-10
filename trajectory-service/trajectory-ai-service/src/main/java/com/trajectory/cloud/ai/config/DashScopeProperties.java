@@ -37,6 +37,6 @@ public class DashScopeProperties {
     /**
      * 最大生成 Token 数
      */
-    private Integer maxTokens = 2000;
+    private Integer maxTokens = 8192;
 
 }

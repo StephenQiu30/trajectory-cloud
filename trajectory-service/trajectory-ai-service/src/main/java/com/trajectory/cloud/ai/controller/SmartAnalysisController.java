@@ -117,7 +117,7 @@ public class SmartAnalysisController {
                 "图表类型：" + chartType + "\n" +
                 "原始数据：" + csvData + "\n" +
                 "要求：\n" +
-                "1. 仅返回 Echarts Option 配置对应的 JSON。\n" +
+                "1. 仅返回 Echarts Option 配置对应的 JSON，不要包含任何多余的字段（如 userData 等自定义字段）。\n" +
                 "2. 同时给出一段不少于 100 字的数据分析结论。\n" +
                 "3. 严格遵循以下输出格式，使用五个感叹号作为分隔：\n" +
                 "!!!!!\n" +
@@ -143,6 +143,18 @@ public class SmartAnalysisController {
         }
 
         String genChart = splits[1].trim();
+        // 处理可能包含的 Markdown 代码块
+        if (genChart.startsWith("```json")) {
+            genChart = genChart.substring(7);
+        }
+        if (genChart.startsWith("```")) {
+            genChart = genChart.substring(3);
+        }
+        if (genChart.endsWith("```")) {
+            genChart = genChart.substring(0, genChart.length() - 3);
+        }
+        genChart = genChart.trim();
+
         String genResult = splits[2].trim();
 
         // 存库

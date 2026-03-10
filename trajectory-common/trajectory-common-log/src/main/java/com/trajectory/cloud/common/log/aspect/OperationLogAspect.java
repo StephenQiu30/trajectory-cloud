@@ -4,6 +4,8 @@ import cn.hutool.json.JSONUtil;
 import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.common.log.model.OperationLogContext;
 import com.trajectory.cloud.common.log.service.OperationLogRecorder;
+import com.trajectory.cloud.common.utils.IpUtils;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,7 +13,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,8 +33,9 @@ import java.lang.reflect.Method;
 @Slf4j
 public class OperationLogAspect {
 
-    @Autowired(required = false)
-    private OperationLogRecorder operationLogService;
+    @Lazy
+    @Resource
+    private OperationLogRecorder operationLogRecorder;
 
     /**
      * 定义切点：拦截所有带有@OperationLog注解的方法
@@ -46,9 +49,8 @@ public class OperationLogAspect {
      */
     @Around("operationLogPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 如果没有配置OperationLogRecorder，则跳过日志记录
-        if (operationLogService == null) {
-            log.warn("OperationLogRecorder未配置，跳过操作日志记录");
+        if (operationLogRecorder == null) {
+            log.warn("OperationLogRecorder 未配置，跳过操作日志记录");
             return joinPoint.proceed();
         }
 
@@ -114,6 +116,8 @@ public class OperationLogAspect {
                 context.setRequestParams(params.toString());
             }
 
+            // 提前提取 IP 地址，避免在异步线程中访问已回收的 request 对象
+            context.setClientIp(IpUtils.getClientIp(request));
         }
 
         // 执行目标方法
@@ -145,7 +149,7 @@ public class OperationLogAspect {
             context.setErrorMessage(errorMessage);
 
             try {
-                operationLogService.recordOperationLogAsync(context);
+                operationLogRecorder.recordOperationLogAsync(context);
             } catch (Exception e) {
                 log.error("记录操作日志失败", e);
             }

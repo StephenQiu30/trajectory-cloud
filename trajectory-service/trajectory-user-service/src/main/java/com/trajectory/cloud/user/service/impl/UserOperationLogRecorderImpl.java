@@ -4,7 +4,6 @@ import com.trajectory.cloud.api.log.client.LogFeignClient;
 import com.trajectory.cloud.api.log.model.dto.operation.OperationLogAddRequest;
 import com.trajectory.cloud.common.log.model.OperationLogContext;
 import com.trajectory.cloud.common.log.service.OperationLogRecorder;
-import com.trajectory.cloud.common.utils.IpUtils;
 import com.trajectory.cloud.user.model.entity.User;
 import com.trajectory.cloud.user.service.UserService;
 import jakarta.annotation.Resource;
@@ -80,8 +79,7 @@ public class UserOperationLogRecorderImpl implements OperationLogRecorder {
                 }
 
                 // 获取IP地址
-                String clientIp = IpUtils.getClientIp(httpRequest);
-                request.setClientIp(clientIp);
+                request.setClientIp(context.getClientIp());
             }
 
             // 调用日志服务记录操作日志

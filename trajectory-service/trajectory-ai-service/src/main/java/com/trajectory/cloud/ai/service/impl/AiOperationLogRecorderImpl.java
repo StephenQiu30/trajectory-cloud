@@ -7,7 +7,6 @@ import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.common.common.BaseResponse;
 import com.trajectory.cloud.common.log.model.OperationLogContext;
 import com.trajectory.cloud.common.log.service.OperationLogRecorder;
-import com.trajectory.cloud.common.utils.IpUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -80,8 +79,7 @@ public class AiOperationLogRecorderImpl implements OperationLogRecorder {
                 }
 
                 // 获取IP地址
-                String clientIp = IpUtils.getClientIp(httpRequest);
-                request.setClientIp(clientIp);
+                request.setClientIp(context.getClientIp());
             }
 
             // 调用日志服务记录操作日志

@@ -54,9 +54,14 @@ public class OperationLogContext {
 
     /**
      * HttpServletRequest对象
-     * 可用于获取IP、UserAgent等信息
+     * 注意：由于记录日志是异步的，此对象在异步线程中可能已被回收，请优先使用 context 中已提取的信息（如 clientIp）
      */
     private transient HttpServletRequest httpRequest;
+
+    /**
+     * 客户端IP地址
+     */
+    private String clientIp;
 
     /**
      * 操作人ID
