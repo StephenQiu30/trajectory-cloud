@@ -49,17 +49,7 @@ public enum ChartTypeEnum {
     /**
      * 漏斗图
      */
-    FUNNEL("漏斗图"),
-
-    /**
-     * 仪表盘
-     */
-    GAUGE("仪表盘"),
-
-    /**
-     * 词云图
-     */
-    WORDCLOUD("词云图");
+    FUNNEL("漏斗图");
 
     /**
      * 图表类型文本
