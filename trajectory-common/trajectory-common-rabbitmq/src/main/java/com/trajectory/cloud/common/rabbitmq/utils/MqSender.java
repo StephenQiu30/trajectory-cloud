@@ -29,8 +29,8 @@ import java.util.UUID;
 @Component
 public class MqSender {
 
-    @Resource
-    private RabbitTemplate rabbitTemplateBean;
+    @Resource(name = "rabbitTemplate")
+    private RabbitTemplate rabbitTemplate;
 
     @Resource
     private ApplicationEventPublisher eventPublisher;
@@ -57,7 +57,7 @@ public class MqSender {
                     .msgText(JSONUtil.toJsonStr(payload))
                     .build();
 
-            rabbitTemplateBean.convertAndSend(bizTypeEnum.getExchange(), bizTypeEnum.getRoutingKey(), rabbitMessage);
+            rabbitTemplate.convertAndSend(bizTypeEnum.getExchange(), bizTypeEnum.getRoutingKey(), rabbitMessage);
 
             log.info("[MqSender - 直接发送成功] Exchange={}, Route={}, BizType={}, MsgId={}",
                     bizTypeEnum.getExchange(), bizTypeEnum.getRoutingKey(), bizTypeEnum.getValue(),

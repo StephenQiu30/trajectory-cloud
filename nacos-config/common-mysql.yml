@@ -16,7 +16,7 @@ spring:
       connection-timeout: 30000
       keepalive-time: 60000
       connection-test-query: SELECT 1
-      leak-detection-threshold: 2000
+      leak-detection-threshold: 60000
 
 mybatis-plus:
   configuration:

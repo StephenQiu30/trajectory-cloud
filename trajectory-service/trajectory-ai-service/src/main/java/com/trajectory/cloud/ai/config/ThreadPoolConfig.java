@@ -53,6 +53,6 @@ public class ThreadPoolConfig {
                         return thread;
                     }
                 },
-                (r, executor) -> log.warn("BI Task rejected! Queue is full."));
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 }

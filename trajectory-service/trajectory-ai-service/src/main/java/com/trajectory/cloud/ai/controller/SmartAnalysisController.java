@@ -7,10 +7,12 @@ import com.trajectory.cloud.ai.model.entity.Chart;
 import com.trajectory.cloud.ai.service.AiAssistant;
 import com.trajectory.cloud.ai.service.ChartService;
 import com.trajectory.cloud.api.ai.model.dto.AiChatRequest;
+import com.trajectory.cloud.api.ai.model.dto.ChartAnalysisMessage;
 import com.trajectory.cloud.api.ai.model.dto.ChartGenRequest;
 import com.trajectory.cloud.api.ai.model.dto.ChartQueryRequest;
 import com.trajectory.cloud.api.ai.model.enums.AiModelTypeEnum;
 import com.trajectory.cloud.api.ai.model.enums.ChartStatusEnum;
+import com.trajectory.cloud.api.ai.model.enums.ChartTypeEnum;
 import com.trajectory.cloud.api.ai.model.vo.ChartVO;
 import com.trajectory.cloud.common.auth.utils.SecurityUtils;
 import com.trajectory.cloud.common.cache.model.TimeModel;
@@ -28,6 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,11 +68,11 @@ public class SmartAnalysisController {
      * @param chartGenRequest 请求
      * @return 结果
      */
-    @PostMapping("/gen")
+    @PostMapping(value = "/gen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @OperationLog(module = "BI 管理", action = "智能数据分析 (同步)")
     @Operation(summary = "智能分析 (同步)", description = "上传 Excel 进行智能分析并返回结果")
     public BaseResponse<Chart> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
-                                            ChartGenRequest chartGenRequest) {
+            ChartGenRequest chartGenRequest) {
         log.info("智能分析 (同步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
         String name = chartGenRequest.getName();
         String goal = chartGenRequest.getGoal();
@@ -78,6 +81,11 @@ public class SmartAnalysisController {
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
+        // 图表类型校验
+        if (StringUtils.isNotBlank(chartType)) {
+            ThrowUtils.throwIf(ChartTypeEnum.getEnumByText(chartType) == null, ErrorCode.PARAMS_ERROR,
+                    "不支持的图表类型：" + chartType);
+        }
 
         // 文件校验
         long size = multipartFile.getSize();
@@ -153,11 +161,11 @@ public class SmartAnalysisController {
         return ResultUtils.success(chart);
     }
 
-    @PostMapping("/gen/async")
+    @PostMapping(value = "/gen/async", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @OperationLog(module = "BI 管理", action = "智能数据分析 (异步)")
     @Operation(summary = "智能分析 (异步)", description = "上传 Excel 进行智能分析 (异步处理)")
     public BaseResponse<Long> genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
-                                                ChartGenRequest chartGenRequest) {
+            ChartGenRequest chartGenRequest) {
         log.info("智能分析 (异步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
         String name = chartGenRequest.getName();
         String goal = chartGenRequest.getGoal();
@@ -166,6 +174,11 @@ public class SmartAnalysisController {
         // 校验
         ThrowUtils.throwIf(StringUtils.isBlank(goal), ErrorCode.PARAMS_ERROR, "目标为空");
         ThrowUtils.throwIf(StringUtils.isNotBlank(name) && name.length() > 100, ErrorCode.PARAMS_ERROR, "名称过长");
+        // 图表类型校验
+        if (StringUtils.isNotBlank(chartType)) {
+            ThrowUtils.throwIf(ChartTypeEnum.getEnumByText(chartType) == null, ErrorCode.PARAMS_ERROR,
+                    "不支持的图表类型：" + chartType);
+        }
 
         // 文件校验
         long size = multipartFile.getSize();
@@ -202,7 +215,10 @@ public class SmartAnalysisController {
 
         // 发送到 MQ
         Long chartId = chart.getId();
-        mqSender.send(MqBizTypeEnum.BI_CHART, String.valueOf(chartId), chartId);
+        ChartAnalysisMessage message = ChartAnalysisMessage.builder()
+                .chartId(chartId)
+                .build();
+        mqSender.send(MqBizTypeEnum.BI_CHART, String.valueOf(chartId), message);
 
         log.info("智能分析 (异步) 请求发送成功, chartId: {}", chartId);
         return ResultUtils.success(chartId);

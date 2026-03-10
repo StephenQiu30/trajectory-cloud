@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.listener.FatalExceptionStrategy;
 import org.springframework.amqp.support.converter.ContentTypeDelegatingMessageConverter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +35,7 @@ public class RabbitMqConfiguration {
      * @param connectionFactory 连接工厂接口
      * @return 返回结果
      */
-    @Bean("rabbitTemplateBean")
+    @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter messageConverter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         // 开启 Mandatory 以触发回调，确保消息进入交换机后未被队列接收时不被丢弃
@@ -136,17 +137,17 @@ public class RabbitMqConfiguration {
      */
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            SimpleRabbitListenerContainerFactoryConfigurer configurer,
             ConnectionFactory connectionFactory,
             Jackson2JsonMessageConverter jacksonMessageConverter,
             ErrorHandler errorHandler,
             RetryOperationsInterceptor retryInterceptor) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
+        configurer.configure(factory, connectionFactory);
         factory.setMessageConverter(jacksonMessageConverter);
         factory.setErrorHandler(errorHandler);
         factory.setAdviceChain(retryInterceptor);
-        // prefetch 、concurrency、maxConcurrency、defaultRequeueRejected
-        // 均通过 spring.rabbitmq.listener.simple.* 配置文件自动绑定，此处不再硬编码
         return factory;
     }
+
 }
