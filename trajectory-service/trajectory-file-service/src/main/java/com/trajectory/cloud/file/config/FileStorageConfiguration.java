@@ -2,12 +2,8 @@ package com.trajectory.cloud.file.config;
 
 import com.trajectory.cloud.file.config.properties.FileStorageProperties;
 import com.trajectory.cloud.file.manager.CosManager;
-import com.trajectory.cloud.file.manager.MinioManager;
-import com.trajectory.cloud.file.manager.OssManager;
 import com.trajectory.cloud.file.service.FileStorageService;
 import com.trajectory.cloud.file.service.impl.CosFileStorageServiceImpl;
-import com.trajectory.cloud.file.service.impl.MinioFileStorageServiceImpl;
-import com.trajectory.cloud.file.service.impl.OssFileStorageServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,17 +22,5 @@ public class FileStorageConfiguration {
     @ConditionalOnProperty(prefix = "file.storage", name = "type", havingValue = "cos")
     public FileStorageService cosFileStorageService(CosManager cosManager) {
         return new CosFileStorageServiceImpl(cosManager);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "file.storage", name = "type", havingValue = "minio")
-    public FileStorageService minioFileStorageService(MinioManager minioManager) {
-        return new MinioFileStorageServiceImpl(minioManager);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "file.storage", name = "type", havingValue = "oss")
-    public FileStorageService ossFileStorageService(OssManager ossManager) {
-        return new OssFileStorageServiceImpl(ossManager);
     }
 }

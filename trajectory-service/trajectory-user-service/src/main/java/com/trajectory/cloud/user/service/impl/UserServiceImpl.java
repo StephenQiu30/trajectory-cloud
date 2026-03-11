@@ -18,10 +18,8 @@ import com.trajectory.cloud.api.user.model.enums.UserRoleEnum;
 import com.trajectory.cloud.api.user.model.vo.GitHubUserVO;
 import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.api.user.model.vo.UserVO;
-import com.trajectory.cloud.api.user.model.vo.WxLoginResponse;
 import com.trajectory.cloud.common.auth.utils.SecurityUtils;
 import com.trajectory.cloud.common.cache.model.TimeModel;
-import com.trajectory.cloud.common.cache.utils.CacheUtils;
 import com.trajectory.cloud.common.cache.utils.lock.LockUtils;
 import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ThrowUtils;
@@ -40,15 +38,12 @@ import com.trajectory.cloud.user.convert.UserConvert;
 import com.trajectory.cloud.user.mapper.UserMapper;
 import com.trajectory.cloud.user.model.dto.UserLoginLogRecordRequest;
 import com.trajectory.cloud.user.model.entity.User;
-import com.trajectory.cloud.user.service.GitHubOAuthService;
 import com.trajectory.cloud.user.service.GitHubService;
 import com.trajectory.cloud.user.service.UserEmailService;
 import com.trajectory.cloud.user.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -58,7 +53,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -77,15 +71,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private UserEmailService userEmailService;
-
-    @Resource
-    private WxMpService wxMpService;
-
-    @Resource
-    private CacheUtils cacheUtils;
-
-    @Resource
-    private GitHubOAuthService gitHubOAuthService;
 
     @Resource
     private LogFeignClient logFeignClient;
@@ -272,8 +257,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         Long id = userQueryRequest.getId();
         Long notId = userQueryRequest.getNotId();
-        String wxUnionId = userQueryRequest.getWxUnionId();
-        String mpOpenId = userQueryRequest.getMpOpenId();
         String userName = userQueryRequest.getUserName();
         String userRole = userQueryRequest.getUserRole();
         String userEmail = userQueryRequest.getUserEmail();
@@ -286,8 +269,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper
                 .eq(id != null, User::getId, id)
                 .ne(ObjectUtils.isNotEmpty(notId), User::getId, notId)
-                .eq(StringUtils.isNotBlank(wxUnionId), User::getWxUnionId, wxUnionId)
-                .eq(StringUtils.isNotBlank(mpOpenId), User::getMpOpenId, mpOpenId)
                 .eq(StringUtils.isNotBlank(userRole), User::getUserRole, userRole)
                 .like(StringUtils.isNotBlank(userName), User::getUserName, userName)
                 .like(StringUtils.isNotBlank(userEmail), User::getUserEmail, userEmail)
@@ -323,7 +304,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     @Override
     public LoginUserVO userLoginByGitHub(String code, String state, HttpServletRequest request) {
-        gitHubOAuthService.validateAndConsumeState(state);
+        gitHubService.validateAndConsumeState(state);
         ThrowUtils.throwIf(StringUtils.isBlank(code), ErrorCode.PARAMS_ERROR, "授权码不能为空");
 
         String accessToken = gitHubService.getAccessToken(code);
@@ -490,73 +471,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public String getGitHubAuthorizeUrl() {
-        return gitHubOAuthService.buildAuthorizeUrl();
+        return gitHubService.buildAuthorizeUrl();
     }
 
-    @Override
-    public WxLoginResponse getLoginQrCode() {
-        try {
-            String sceneId = UUID.randomUUID().toString();
-            // 生成临时二维码，有效期 5 分钟
-            WxMpQrCodeTicket ticket = wxMpService.getQrcodeService().qrCodeCreateTmpTicket(sceneId, 60 * 5);
-            String qrCodeUrl = wxMpService.getQrcodeService().qrCodePictureUrl(ticket.getTicket());
-            return WxLoginResponse.builder()
-                    .qrCodeUrl(qrCodeUrl)
-                    .sceneId(sceneId)
-                    .build();
-        } catch (Exception e) {
-            log.error("getLoginQrCode error", e);
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取二维码失败");
-        }
-    }
-
-    @Override
-    public LoginUserVO checkWxLoginStatus(String sceneId) {
-        String redisKey = "user:login:wx:" + sceneId;
-        LoginUserVO loginUserVO = cacheUtils.get(redisKey);
-        if (loginUserVO != null) {
-            cacheUtils.remove(redisKey);
-        }
-        return loginUserVO;
-    }
-
-    @Override
-    public LoginUserVO userLoginByWxOpenId(String openId) {
-        ThrowUtils.throwIf(StringUtils.isBlank(openId), ErrorCode.PARAMS_ERROR, "微信 OpenID 不能为空");
-
-        String lockKey = "user:register:wechat:" + openId;
-        return lockUtils.lockEvent(lockKey, new TimeModel(5L, TimeUnit.SECONDS), () -> {
-            User user = this.getOne(new LambdaQueryWrapper<User>().eq(User::getMpOpenId, openId));
-
-            if (user == null) {
-                user = new User();
-                user.setMpOpenId(openId);
-                user.setUserName("微信用户_" + openId.substring(Math.max(0, openId.length() - 4)));
-                user.setUserRole(UserRoleEnum.USER.getValue());
-                boolean result = this.save(user);
-                ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "用户注册失败");
-            }
-
-            user.setLastLoginTime(new Date());
-            this.updateById(user);
-
-            StpUtil.login(user.getId());
-
-            UserLoginLogRecordRequest logRecordRequest = new UserLoginLogRecordRequest();
-            logRecordRequest.setUser(user);
-            logRecordRequest.setLoginType(LoginTypeEnum.WECHAT_MP);
-            logRecordRequest.setAccount(openId);
-            logRecordRequest.setHttpRequest(null);
-            recordLoginLogAsync(logRecordRequest);
-
-            LoginUserVO loginUserVO = this.getLoginUserVO(user);
-            UserVO userVO = UserConvert.objToVo(user);
-            StpUtil.getSession().set(UserConstant.USER_LOGIN_STATE, userVO);
-            return loginUserVO;
-        }, () -> {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "登录人数过多，请稍后再试");
-        });
-    }
 
     /**
      * 同步数据到 ES

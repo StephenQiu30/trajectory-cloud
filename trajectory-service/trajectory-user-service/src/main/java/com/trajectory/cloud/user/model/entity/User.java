@@ -78,24 +78,6 @@ public class User implements Serializable {
     private String userPhone;
 
     /**
-     * 微信公众号 OpenID
-     */
-    @Schema(description = "微信公众号 OpenID")
-    private String mpOpenId;
-
-    /**
-     * 微信 UnionID
-     */
-    @Schema(description = "微信 UnionID")
-    private String wxUnionId;
-
-    /**
-     * 微信开放平台 OpenID
-     */
-    @Schema(description = "微信开放平台 OpenID")
-    private String wxOpenId;
-
-    /**
      * GitHub ID
      */
     @Schema(description = "GitHub ID")

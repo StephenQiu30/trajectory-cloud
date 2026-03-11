@@ -7,7 +7,7 @@ import com.trajectory.cloud.api.user.model.dto.UserEmailLoginRequest;
 import com.trajectory.cloud.api.user.model.dto.UserQueryRequest;
 import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.api.user.model.vo.UserVO;
-import com.trajectory.cloud.api.user.model.vo.WxLoginResponse;
+
 import com.trajectory.cloud.common.rabbitmq.enums.EsSyncTypeEnum;
 import com.trajectory.cloud.user.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -136,29 +136,6 @@ public interface UserService extends IService<User> {
      * @return LambdaQueryWrapper 查询条件封装
      */
     LambdaQueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
-
-    /**
-     * 获取微信登录二维码
-     *
-     * @return {@link WxLoginResponse}
-     */
-    WxLoginResponse getLoginQrCode();
-
-    /**
-     * 检查微信登录状态
-     *
-     * @param sceneId 场景 ID
-     * @return {@link LoginUserVO}
-     */
-    LoginUserVO checkWxLoginStatus(String sceneId);
-
-    /**
-     * 微信登录/注册
-     *
-     * @param openId 微信 OpenID
-     * @return {@link LoginUserVO}
-     */
-    LoginUserVO userLoginByWxOpenId(String openId);
 
     /**
      * 同步数据到 ES

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.trajectory.cloud.api.user.model.dto.*;
 import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.api.user.model.vo.UserVO;
-import com.trajectory.cloud.api.user.model.vo.WxLoginResponse;
+
 import com.trajectory.cloud.common.common.*;
 import com.trajectory.cloud.common.constants.UserConstant;
 import com.trajectory.cloud.common.log.annotation.OperationLog;
@@ -167,32 +167,6 @@ public class UserController {
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
-    }
-
-    /**
-     * 获取微信登录二维码
-     *
-     * @return 微信登录二维码链接及场景 ID
-     */
-    @GetMapping("/login/wx/qrcode")
-    public BaseResponse<WxLoginResponse> getWxLoginQrCode() {
-        WxLoginResponse wxLoginResponse = userService.getLoginQrCode();
-        return ResultUtils.success(wxLoginResponse);
-    }
-
-    /**
-     * 检查微信登录状态
-     *
-     * @param sceneId 场景 ID
-     * @return BaseResponse<LoginUserVO>
-     */
-    @GetMapping("/login/wx/status")
-    @OperationLog(module = "用户认证", action = "检查微信登录状态")
-    @Operation(summary = "检查微信登录状态", description = "轮询检查微信扫码登录状态")
-    public BaseResponse<LoginUserVO> checkWxLoginStatus(String sceneId) {
-        ThrowUtils.throwIf(StringUtils.isBlank(sceneId), ErrorCode.PARAMS_ERROR);
-        LoginUserVO loginUserVO = userService.checkWxLoginStatus(sceneId);
-        return ResultUtils.success(loginUserVO);
     }
 
     // endregion

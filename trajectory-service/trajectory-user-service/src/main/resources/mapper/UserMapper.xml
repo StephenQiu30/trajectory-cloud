@@ -6,8 +6,7 @@
 
     <resultMap id="BaseResultMap" type="com.trajectory.cloud.user.model.entity.User">
         <id property="id" column="id" jdbcType="BIGINT"/>
-        <result property="unionId" column="union_id" jdbcType="VARCHAR"/>
-        <result property="mpOpenId" column="mp_open_id" jdbcType="VARCHAR"/>
+
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
         <result property="userProfile" column="user_profile" jdbcType="VARCHAR"/>
@@ -17,7 +16,7 @@
         <result property="githubId" column="github_id" jdbcType="VARCHAR"/>
         <result property="githubLogin" column="github_login" jdbcType="VARCHAR"/>
         <result property="githubUrl" column="github_url" jdbcType="VARCHAR"/>
-        <result property="wxOpenId" column="wx_open_id" jdbcType="VARCHAR"/>
+
         <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
@@ -25,12 +24,11 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,
-        union_id,mp_open_id,user_name,
+        id,
+        user_name,
         user_avatar,user_profile,user_role,user_email,
         email_verified,github_id,github_login,
-        github_url,wx_open_id,
+        github_url,
         user_phone,create_time,update_time,is_delete
     </sql>
 

@@ -72,12 +72,6 @@
             <artifactId>trajectory-api-search</artifactId>
         </dependency>
 
-        <!-- weixin-java-mp -->
-        <dependency>
-            <groupId>com.github.binarywang</groupId>
-            <artifactId>weixin-java-mp</artifactId>
-        </dependency>
-
 
     </dependencies>
 
