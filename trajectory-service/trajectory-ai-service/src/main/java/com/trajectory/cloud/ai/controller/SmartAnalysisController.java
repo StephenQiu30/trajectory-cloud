@@ -10,6 +10,7 @@ import com.trajectory.cloud.api.ai.model.dto.AiChatRequest;
 import com.trajectory.cloud.api.ai.model.dto.ChartAnalysisMessage;
 import com.trajectory.cloud.api.ai.model.dto.ChartGenRequest;
 import com.trajectory.cloud.api.ai.model.dto.ChartQueryRequest;
+import com.trajectory.cloud.api.ai.model.dto.ChartUpdateRequest;
 import com.trajectory.cloud.api.ai.model.enums.AiModelTypeEnum;
 import com.trajectory.cloud.api.ai.model.enums.ChartStatusEnum;
 import com.trajectory.cloud.api.ai.model.enums.ChartTypeEnum;
@@ -310,5 +311,85 @@ public class SmartAnalysisController {
         boolean b = chartService.removeById(id);
         log.info("删除图表 成功, id: {}", id);
         return ResultUtils.success(b);
+    }
+
+    /**
+     * 更新图表
+     *
+     * @param chartUpdateRequest 更新请求
+     * @return 是否成功
+     */
+    @PostMapping("/update")
+    @OperationLog(module = "BI 管理", action = "更新图表")
+    @Operation(summary = "更新图表", description = "更新图表名称、目标、类型等基本信息")
+    public BaseResponse<Boolean> updateChart(@RequestBody ChartUpdateRequest chartUpdateRequest) {
+        log.info("更新图表 请求: {}", chartUpdateRequest);
+        if (chartUpdateRequest == null || chartUpdateRequest.getId() == null || chartUpdateRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Long userId = SecurityUtils.getLoginUserId();
+        long id = chartUpdateRequest.getId();
+        // 判断是否存在
+        Chart oldChart = chartService.getById(id);
+        if (oldChart == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 仅本人或管理员可更新
+        if (!oldChart.getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        // 校验数据
+        String name = chartUpdateRequest.getName();
+        String goal = chartUpdateRequest.getGoal();
+        String chartType = chartUpdateRequest.getChartType();
+        if (StringUtils.isNotBlank(name) && name.length() > 100) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "名称过长");
+        }
+        // 图表类型校验
+        if (StringUtils.isNotBlank(chartType)) {
+            ThrowUtils.throwIf(ChartTypeEnum.getEnumByText(chartType) == null, ErrorCode.PARAMS_ERROR,
+                    "不支持的图表类型：" + chartType);
+        }
+        // 更新图表
+        Chart chart = new Chart();
+        chart.setId(id);
+        chart.setName(name);
+        chart.setGoal(goal);
+        chart.setChartType(chartType);
+        boolean result = chartService.updateById(chart);
+        log.info("更新图表 成功, id: {}", id);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 分页获取图表列表（封装类）
+     * <p>
+     * 管理员可查看所有图表，普通用户只能查看自己的图表
+     *
+     * @param chartQueryRequest 查询请求
+     * @return 图表 VO 分页列表
+     */
+    @PostMapping("/list/page/vo")
+    @OperationLog(module = "BI 管理", action = "分页获取图表列表")
+    @Operation(summary = "分页获取图表列表（封装类）", description = "管理员可查看所有图表，普通用户只能查看自己的图表")
+    public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest) {
+        log.info("分页获取图表列表 请求: {}", chartQueryRequest);
+        if (chartQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long current = chartQueryRequest.getCurrent();
+        long size = chartQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 如果不是管理员，强制只能查看自己的图表
+        Long userId = SecurityUtils.getLoginUserId();
+        if (!SecurityUtils.isAdmin()) {
+            chartQueryRequest.setUserId(userId);
+        }
+        LambdaQueryWrapper<Chart> queryWrapper = chartService.getQueryWrapper(chartQueryRequest);
+        Page<Chart> chartPage = chartService.page(new Page<>(current, size), queryWrapper);
+        Page<ChartVO> chartVOPage = chartService.getChartVOPage(chartPage);
+        log.info("分页获取图表列表 成功, 总数: {}", chartVOPage.getTotal());
+        return ResultUtils.success(chartVOPage);
     }
 }
