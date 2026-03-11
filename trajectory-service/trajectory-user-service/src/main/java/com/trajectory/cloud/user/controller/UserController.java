@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户接口
@@ -364,7 +365,7 @@ public class UserController {
         // 批量接口主要用于内部 Feign 调用（如 ES 同步），不依赖 HttpServletRequest 上下文
         List<UserVO> userVOList = userList.stream()
                 .map(UserConvert::objToVo)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         return ResultUtils.success(userVOList);
     }
 

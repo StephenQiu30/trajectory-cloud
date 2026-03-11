@@ -14,8 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author stephen
  */
 @EnableScheduling
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}, scanBasePackages = {"com.trajectory.cloud.search",
-        "com.trajectory.cloud.common"})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}, scanBasePackages = "com.trajectory.cloud")
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.trajectory.cloud.api")
 @EnableElasticsearchRepositories(basePackages = "com.trajectory.cloud.search.repository")

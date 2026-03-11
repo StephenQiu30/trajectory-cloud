@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  *
  * @author StephenQiu30
  */
-@SpringBootApplication(scanBasePackages = {"com.trajectory.cloud.mail", "com.trajectory.cloud.common"})
+@SpringBootApplication(scanBasePackages = "com.trajectory.cloud")
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.trajectory.cloud.api")
 @EnableAsync

@@ -76,3 +76,14 @@ application-*.properties
 # Logs
 logs/
 *.log.*
+
+# Environment Variables
+.env
+
+# Local Docker Data
+docker/*/data/
+docker/*/logs/
+
+# Nacos Configurations (Sensitive)
+nacos-config/*-prod.*
+nacos-config/common-secret.*

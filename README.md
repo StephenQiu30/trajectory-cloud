@@ -59,11 +59,11 @@ graph TD
 | 核心框架           | Spring Boot          | 3.5.9        |
 | 微服务治理          | Spring Cloud Alibaba | 2023.0.3.2   |
 | 服务网关           | Spring Cloud Gateway | 5.0.1        |
-| 数据库            | MySQL                | 8.4.0        |
+| 数据库            | MySQL                | 8.0          |
 | 持久层框架          | MyBatis-Plus         | 3.5.12       |
-| 缓存/分布式锁        | Redis & Redisson     | 7.0 / 3.48.0 |
-| 消息队列           | RabbitMQ             | 3.12         |
-| 搜索引擎           | Elasticsearch        | 8.19.10      |
+| 缓存/分布式锁        | Redis & Redisson     | 7.4 / 3.48.0 |
+| 消息队列           | RabbitMQ             | 4.2.3        |
+| 搜索引擎           | Elasticsearch        | 9.3.0        |
 | 通讯框架           | Netty                | 4.2.5.Final  |
 | 认证鉴权           | Sa-Token             | 1.44.0       |
 | 监控配置: Actuator | Spring Boot Actuator | 3.5.9        |
@@ -89,31 +89,60 @@ graph TD
 
 ## 🚀 快速启动
 
-### 1. 基础环境
+本项目采用**环境 (Middleware)** 与 **业务 (Application)** 分离的容器化部署方案。
 
-确保已安装 **Docker** 与 **Docker Compose**，在根目录下运行：
+### 0. 前置准备
+- **Docker & Docker Compose**: 确保已安装最新版本。
+- **Java 21**: 本地调试需要 JDK 21 环境。
+- **Maven**: 用于项目打包。
+
+### 1. 配置环境变量 (`.env`)
+项目根目录下的 [.env](.env) 文件集中管理了所有服务的敏感信息和端口。
+> [!IMPORTANT]
+> 由于安全原因，`.env` 文件不会被提交到仓库。请先通过以下命令创建：
+> `cp .env.example .env`
+> 然后根据你的本地环境修改 `.env` 中的配置。
+
+- `DEFAULT_PASSWORD`: 统一的默认密码。
+- `MYSQL_PORT_EXTERNAL`: 宿主机访问 MySQL 的端口 (默认 `13306`)。
+- `ES_VERSION`: Elasticsearch 版本 (需与本地环境匹配，当前为 `9.3.0-arm64`)。
+
+### 2. 部署基础环境 (Infrastructure)
+基础环境包含 MySQL, Redis, Nacos, RabbitMQ, ES 等中间件。
 
 ```bash
-docker-compose up -d
+# 启动中间件环境
+docker-compose -f docker-compose-env.yml up -d
 ```
 
-这将启动 MySQL, Redis, RabbitMQ, Nacos, ES 等所有中间件。
+> [!TIP]
+> **初始化工作**：
+> - **数据库**：首次启动后，请根据 `sql/README.md` 执行初始化脚本。
+> - **配置中心**：访问 Nacos (`http://localhost:8840/nacos`) 并导入 `nacos-config/` 下的配置文件。
+>   - *注：出于安全考虑，`*-prod.*` (生产配置) 和 `common-secret.*` (敏感密钥) 已被 `.gitignore` 忽略，请参考示例文件自行创建。*
 
-### 2. 初始化数据库
-
-参考 `sql/README.md` 执行相关数据库脚本。
-
-### 3. 配置中心
-
-1. 访问 Nacos 控制台 (默认 `localhost:8848/nacos`)。
-2. 运行 `nacos-config/import-config.sh` (或手动导入) 导入配置文件。
-
-### 4. 编译与运行
+### 3. 部署业务项目 (Application)
+在环境准备就绪后，启动网关及所有业务微服务。
 
 ```bash
-mvn clean install -DskipTests
-# 启动各个 Service 模块的 Application 类
+# 1.项目打包 (跳过测试)
+mvn clean package -DskipTests
+
+# 2. 启动业务容器
+docker-compose up -d --build
 ```
+
+### 4. 服务访问入口
+| 服务 | 宿主机地址 | 默认账号 | 默认密码 |
+|:---|:---|:---|:---|
+| **API 网关/业务入口** | `http://localhost:8080` | - | - |
+| **Nacos 控制台** | `http://localhost:8840/nacos` | `nacos` | `nacos` |
+| **RabbitMQ 管理** | `http://localhost:15672` | `guest` | `guest` |
+| **MinIO 控制台** | `http://localhost:19001` | `admin` | `stephenqhd30.` |
+| **Elasticsearch** | `http://localhost:9200` | `elastic` | `YbG5Wvvm` |
+| **Kibana 可视化** | `http://localhost:5601` | `kibana_system` | `Eg1lqM4C` |
+| **Redis** | `localhost:16379` | - | - |
+| **MySQL** | `localhost:13306` | `root` | `stephenqhd30.` |
 
 ---
 

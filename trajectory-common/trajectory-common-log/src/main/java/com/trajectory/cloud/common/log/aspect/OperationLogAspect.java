@@ -1,5 +1,7 @@
 package com.trajectory.cloud.common.log.aspect;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.common.log.model.OperationLogContext;
@@ -7,6 +9,7 @@ import com.trajectory.cloud.common.log.service.OperationLogRecorder;
 import com.trajectory.cloud.common.utils.IpUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -15,8 +18,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Method;
 
@@ -40,24 +45,19 @@ public class OperationLogAspect {
     /**
      * 定义切点：拦截所有带有@OperationLog注解的方法
      */
-    @Pointcut("@annotation(com.trajectory.cloud.common.log.annotation.OperationLog)")
-    public void operationLogPointcut() {
+    @Pointcut("@annotation(operationLog)")
+    public void operationLogPointcut(OperationLog operationLog) {
     }
 
     /**
      * 环绕通知：在方法执行前后记录日志
      */
-    @Around("operationLogPointcut()")
-    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("operationLogPointcut(operationLog)")
+    public Object around(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
         if (operationLogRecorder == null) {
             log.warn("OperationLogRecorder 未配置，跳过操作日志记录");
             return joinPoint.proceed();
         }
-
-        // 获取注解信息
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
-        OperationLog operationLog = method.getAnnotation(OperationLog.class);
 
         // 获取 HttpServletRequest
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -77,8 +77,8 @@ public class OperationLogAspect {
             // 尝试获取操作人信息并设置到上下文中
             String userIdStr = request.getHeader("userId");
             String userName = request.getHeader("userName");
-            if (cn.hutool.core.util.StrUtil.isNotBlank(userIdStr)) {
-                context.setOperatorId(cn.hutool.core.convert.Convert.toLong(userIdStr));
+            if (StrUtil.isNotBlank(userIdStr)) {
+                context.setOperatorId(Convert.toLong(userIdStr));
             }
             context.setOperatorName(userName);
 
@@ -92,8 +92,8 @@ public class OperationLogAspect {
                         continue;
                     }
                     // 排除不需要序列化的参数
-                    if (arg instanceof HttpServletRequest || arg instanceof jakarta.servlet.http.HttpServletResponse
-                            || arg instanceof org.springframework.validation.BindingResult) {
+                    if (arg instanceof HttpServletRequest || arg instanceof HttpServletResponse
+                            || arg instanceof BindingResult) {
                         continue;
                     }
 
@@ -102,7 +102,7 @@ public class OperationLogAspect {
                     }
 
                     // 特殊处理 MultipartFile
-                    if (arg instanceof org.springframework.web.multipart.MultipartFile file) {
+                    if (arg instanceof MultipartFile file) {
                         params.append(
                                 String.format("File(name=%s, size=%d)", file.getOriginalFilename(), file.getSize()));
                     } else {
