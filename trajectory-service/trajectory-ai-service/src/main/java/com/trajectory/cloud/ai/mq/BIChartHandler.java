@@ -134,30 +134,97 @@ public class BIChartHandler implements MqHandler<ChartAnalysisMessage> {
                     .build();
 
             String result = assistant.chat(prompt).content();
+            log.info("[BIChartHandler] AI 原始回复: {}", result);
+
+            // 解析回复
             String[] splits = result.split("!!!!!");
             if (splits.length < 3) {
-                throw new RuntimeException("AI 生成格式错误");
+                // 尝试容错解析：如果 AI 没有严格按照分隔符，尝试寻找 JSON 块
+                log.warn("[BIChartHandler] AI 响应格式不标准，尝试启发式解析, chartId: {}", chartId);
+                String genChart = extractJson(result);
+                String genResult = extractAnalysis(result);
+
+                if (genChart == null || genResult == null) {
+                    throw new RuntimeException("AI 生成格式错误: 无法提取有效图表配置或分析结论");
+                }
+                updateSucceedStatus(chartId, genChart, genResult);
+            } else {
+                String genChart = cleanMarkdown(splits[1].trim());
+                String genResult = splits[2].trim();
+                updateSucceedStatus(chartId, genChart, genResult);
             }
-
-            String genChart = splits[1].trim();
-            String genResult = splits[2].trim();
-
-            // 更新图表结果（采用新对象更新防止字段冲突）
-            Chart finishChart = new Chart();
-            finishChart.setId(chartId);
-            finishChart.setGenChart(genChart);
-            finishChart.setGenResult(genResult);
-            finishChart.setStatus(ChartStatusEnum.SUCCEED.getValue());
-            chartService.updateById(finishChart);
 
             // 发送成功通知
             sendNotification(chartId, chart.getUserId(), ChartStatusEnum.SUCCEED.getValue(), chart.getName(), null);
-
             log.info("[BIChartHandler] 图表分析处理成功, chartId: {}", chartId);
         } catch (Exception e) {
             log.error("[BIChartHandler] 图表分析处理失败, chartId: {}", chartId, e);
             handleUpdateError(chart, e.getMessage());
         }
+    }
+
+    /**
+     * 更新图表为成功状态
+     */
+    private void updateSucceedStatus(Long chartId, String genChart, String genResult) {
+        Chart finishChart = new Chart();
+        finishChart.setId(chartId);
+        finishChart.setGenChart(genChart);
+        finishChart.setGenResult(genResult);
+        finishChart.setStatus(ChartStatusEnum.SUCCEED.getValue());
+        chartService.updateById(finishChart);
+    }
+
+    /**
+     * 提取 JSON 内容（优先寻找 code block)
+     */
+    private String extractJson(String text) {
+        if (text.contains("```json")) {
+            int start = text.indexOf("```json") + 7;
+            int end = text.indexOf("```", start);
+            if (end > start) {
+                return text.substring(start, end).trim();
+            }
+        } else if (text.contains("{") && text.contains("}")) {
+            int start = text.indexOf("{");
+            int end = text.lastIndexOf("}");
+            if (end > start) {
+                return text.substring(start, end + 1).trim();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 提取分析结论
+     */
+    private String extractAnalysis(String text) {
+        // 如果有分隔符，第三部分是结论。如果没有，假设在 JSON 之后的所有非空文本
+        if (text.contains("!!!!!")) {
+            String[] splits = text.split("!!!!!");
+            if (splits.length >= 3) return splits[2].trim();
+        }
+        // 启发式：如果 JSON 块在后面，结论可能在前面；如果 JSON 在前面，结论在后面。
+        // 这里简单处理：寻找 JSON 块之后非空的最长文本段落
+        int lastJsonBrace = text.lastIndexOf("}");
+        if (lastJsonBrace != -1 && lastJsonBrace < text.length() - 1) {
+            String suffix = text.substring(lastJsonBrace + 1).trim();
+            if (suffix.length() > 50) return suffix;
+        }
+        return null; // 无法提取
+    }
+
+    /**
+     * 清理 Markdown 代码块包裹
+     */
+    private String cleanMarkdown(String content) {
+        if (content.startsWith("```")) {
+            content = content.replaceAll("^```[a-zA-Z]*\\n?", "");
+        }
+        if (content.endsWith("```")) {
+            content = content.replaceAll("\\n?```$", "");
+        }
+        return content.trim();
     }
 
     /**
@@ -167,19 +234,21 @@ public class BIChartHandler implements MqHandler<ChartAnalysisMessage> {
      * @return AI 提示词
      */
     private String constructPrompt(Chart chart) {
-        return "你是一个数据分析师和前端 Echarts 开发专家。请根据以下分析目标和原始数据，为我生成一个合法的 Echarts 配置。\n" +
-                "分析目标：" + chart.getGoal() + "\n" +
-                "图表名称：" + chart.getName() + "\n" +
-                "图表类型：" + chart.getChartType() + "\n" +
-                "原始数据：" + chart.getChartData() + "\n" +
-                "要求：\n" +
-                "1. 仅返回 Echarts Option 配置对应的 JSON。\n" +
-                "2. 同时给出一段不少于 100 字的数据分析结论。\n" +
-                "3. 严格遵循以下输出格式，使用五个感叹号作为分隔：\n" +
+        return "你是一个高级数据分析师和 Echarts 专家。请根据以下信息生成图表配置和分析结论。\n\n" +
+                "### 1. 分析背景\n" +
+                "- 分析目标：" + chart.getGoal() + "\n" +
+                "- 图表名称：" + chart.getName() + "\n" +
+                "- 期望图表类型：" + chart.getChartType() + "\n" +
+                "- 原始数据（JSON/CSV 格式）：\n" + chart.getChartData() + "\n\n" +
+                "### 2. 输出要求\n" +
+                "1. **Echarts 配置**：必须是合法的 JSON 对象，不要包含 `option =` 前缀，只需返回 `{...}` 核心配置。\n" +
+                "2. **分析结论**：通过数据发现规律、趋势或异常，给出不少于 100 字的详细解读。\n" +
+                "3. **格式约定**：严格按照以下格式输出，使用五个感叹号 `!!!!!` 作为固定分隔符：\n\n" +
                 "!!!!!\n" +
-                "{Echarts Option JSON}\n" +
+                "{Echarts JSON}\n" +
                 "!!!!!\n" +
-                "{分析结论}";
+                "{分析结论}\n\n" +
+                "注意：不要返回任何无关的解释文字，直接从第一个 `!!!!!` 开始。";
     }
 
     /**
