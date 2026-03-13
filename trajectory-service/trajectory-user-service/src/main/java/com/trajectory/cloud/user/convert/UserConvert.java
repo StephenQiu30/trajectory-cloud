@@ -1,7 +1,6 @@
 package com.trajectory.cloud.user.convert;
 
 import cn.hutool.core.util.DesensitizedUtil;
-import com.trajectory.cloud.api.search.model.entity.UserEsDTO;
 import com.trajectory.cloud.api.user.model.dto.UserAddRequest;
 import com.trajectory.cloud.api.user.model.dto.UserEditRequest;
 import com.trajectory.cloud.api.user.model.dto.UserUpdateRequest;
@@ -51,20 +50,6 @@ public class UserConvert {
         return userList.stream().map(UserConvert::objToVo).collect(Collectors.toList());
     }
 
-    /**
-     * 对象转 ES 包装类
-     *
-     * @param user 用户实体
-     * @return 用户 ES 包装类
-     */
-    public static UserEsDTO objToEsDTO(User user) {
-        if (user == null) {
-            return null;
-        }
-        UserEsDTO userEsDTO = new UserEsDTO();
-        BeanUtils.copyProperties(user, userEsDTO);
-        return userEsDTO;
-    }
 
     /**
      * 对象转登录视图

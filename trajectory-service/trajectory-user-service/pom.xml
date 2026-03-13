@@ -66,13 +66,6 @@
             <artifactId>trajectory-api-log</artifactId>
         </dependency>
 
-        <!-- Search API -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-search</artifactId>
-        </dependency>
-
-
     </dependencies>
 
     <build>

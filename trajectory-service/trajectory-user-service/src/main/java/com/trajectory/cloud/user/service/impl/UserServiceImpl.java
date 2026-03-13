@@ -3,14 +3,12 @@ package com.trajectory.cloud.user.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.trajectory.cloud.api.log.client.LogFeignClient;
 import com.trajectory.cloud.api.log.model.dto.login.UserLoginLogAddRequest;
 import com.trajectory.cloud.api.log.model.enums.LoginStatusEnum;
 import com.trajectory.cloud.api.log.model.enums.LoginTypeEnum;
-import com.trajectory.cloud.api.search.model.entity.UserEsDTO;
 import com.trajectory.cloud.api.user.model.dto.UserEmailLoginRequest;
 import com.trajectory.cloud.api.user.model.dto.UserQueryRequest;
 import com.trajectory.cloud.api.user.model.enums.EmailVerifiedEnum;
@@ -27,10 +25,6 @@ import com.trajectory.cloud.common.constants.CommonConstant;
 import com.trajectory.cloud.common.constants.UserConstant;
 import com.trajectory.cloud.common.exception.BusinessException;
 import com.trajectory.cloud.common.mysql.utils.SqlUtils;
-import com.trajectory.cloud.common.rabbitmq.enums.EsSyncDataTypeEnum;
-import com.trajectory.cloud.common.rabbitmq.enums.EsSyncTypeEnum;
-import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
-import com.trajectory.cloud.common.rabbitmq.model.EsSyncBatchMessage;
 import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
 import com.trajectory.cloud.common.utils.IpUtils;
 import com.trajectory.cloud.common.utils.RegexUtils;
@@ -474,49 +468,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return gitHubService.buildAuthorizeUrl();
     }
 
-
-    /**
-     * 同步数据到 ES
-     *
-     * @param syncType      同步方式
-     * @param minUpdateTime 最小更新时间 (增量同步时)
-     */
-    @Override
-    public void syncToEs(EsSyncTypeEnum syncType, Date minUpdateTime) {
-        log.info("[UserServiceImpl] 开始同步用户数据到 ES, 方式: {}, 起始时间: {}", syncType, minUpdateTime);
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.ge(minUpdateTime != null, "update_time", minUpdateTime);
-        queryWrapper.eq("is_delete", 0);
-
-        long pageSize = 500;
-        long current = 1;
-        while (true) {
-            Page<User> page = this.page(new Page<>(current, pageSize), queryWrapper);
-            List<User> userList = page.getRecords();
-            if (CollUtil.isEmpty(userList)) {
-                break;
-            }
-
-            List<UserEsDTO> esDTOList = userList.stream()
-                    .map(UserConvert::objToEsDTO)
-                    .collect(Collectors.toList());
-
-            EsSyncBatchMessage batchMessage = new EsSyncBatchMessage();
-            batchMessage.setDataType(EsSyncDataTypeEnum.USER.getValue());
-            batchMessage.setOperation("upsert");
-            batchMessage.setDataContentList(esDTOList.stream().map(cn.hutool.json.JSONUtil::toJsonStr)
-                    .collect(Collectors.toList()));
-            batchMessage.setTimestamp(System.currentTimeMillis());
-
-            mqSender.send(MqBizTypeEnum.ES_SYNC_BATCH, batchMessage);
-
-            log.info("[UserServiceImpl] 已发送 {} 条用户同步消息, 当前页: {}", esDTOList.size(), current);
-
-            if (userList.size() < pageSize) {
-                break;
-            }
-            current++;
-        }
-        log.info("[UserServiceImpl] 用户数据同步指令处理完成");
-    }
 }

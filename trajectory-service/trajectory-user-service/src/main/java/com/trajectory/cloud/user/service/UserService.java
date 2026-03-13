@@ -7,12 +7,9 @@ import com.trajectory.cloud.api.user.model.dto.UserEmailLoginRequest;
 import com.trajectory.cloud.api.user.model.dto.UserQueryRequest;
 import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.api.user.model.vo.UserVO;
-
-import com.trajectory.cloud.common.rabbitmq.enums.EsSyncTypeEnum;
 import com.trajectory.cloud.user.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -137,11 +134,4 @@ public interface UserService extends IService<User> {
      */
     LambdaQueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
-    /**
-     * 同步数据到 ES
-     *
-     * @param syncType      同步方式
-     * @param minUpdateTime 最小更新时间 (增量同步时)
-     */
-    void syncToEs(EsSyncTypeEnum syncType, Date minUpdateTime);
 }

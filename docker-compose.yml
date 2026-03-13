@@ -10,11 +10,11 @@ services:
     container_name: trajectory-gateway
     restart: always
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT_EXTERNAL}:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
@@ -26,10 +26,12 @@ services:
     image: trajectory-user-service:latest
     container_name: trajectory-user-service
     restart: always
+    ports:
+      - "${USER_SERVICE_PORT_EXTERNAL}:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
@@ -41,10 +43,12 @@ services:
     image: trajectory-ai-service:latest
     container_name: trajectory-ai-service
     restart: always
+    ports:
+      - "${AI_SERVICE_PORT_EXTERNAL}:8086"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
@@ -56,10 +60,12 @@ services:
     image: trajectory-file-service:latest
     container_name: trajectory-file-service
     restart: always
+    ports:
+      - "${FILE_SERVICE_PORT_EXTERNAL}:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
@@ -71,10 +77,12 @@ services:
     image: trajectory-mail-service:latest
     container_name: trajectory-mail-service
     restart: always
+    ports:
+      - "${MAIL_SERVICE_PORT_EXTERNAL}:8085"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
@@ -86,27 +94,15 @@ services:
     image: trajectory-notification-service:latest
     container_name: trajectory-notification-service
     restart: always
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT_EXTERNAL}:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 
-  # Search 搜索服务
-  search-service:
-    build:
-      context: .
-      dockerfile: trajectory-service/trajectory-search-service/Dockerfile
-    image: search-service:latest
-    container_name: search-service
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
-    networks:
-      - trajectory-network
 
   # Log 日志服务
   log-service:
@@ -116,10 +112,12 @@ services:
     image: log-service:latest
     container_name: log-service
     restart: always
+    ports:
+      - "${LOG_SERVICE_PORT_EXTERNAL}:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=nacos:8848
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=nacos:8848
+      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
     networks:
       - trajectory-network
 

@@ -1,6 +1,6 @@
 # 日志服务配置
 server:
-  port: 8085
+  port: 8084
 
 spring:
   application:

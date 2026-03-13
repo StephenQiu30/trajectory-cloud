@@ -43,7 +43,6 @@
 
         <!-- 中间件 -->
         <redisson.version>3.48.0</redisson.version>
-        <elasticsearch.version>8.19.10</elasticsearch.version>
 
         <!-- 工具类 -->
         <hutool.version>5.8.40</hutool.version>
@@ -459,11 +458,6 @@
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-api-search</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
@@ -508,11 +502,6 @@
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-search-service</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>

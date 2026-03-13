@@ -39,7 +39,6 @@ spring:
           - /api/user/logout
           - /api/user/get/login
           - /api/user/email/code
-          - /api/search/all
           - /api/notification/page
           - /doc.html
           - /swagger-ui/**
@@ -92,18 +91,6 @@ spring:
                     redis-rate-limiter.replenishRate: 10
                     redis-rate-limiter.burstCapacity: 20
                     key-resolver: "#{@userKeyResolver}"
-
-            - id: trajectory-search-service
-              uri: lb://trajectory-search-service
-              predicates:
-                - Path=/api/search/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 20
-                    redis-rate-limiter.burstCapacity: 40
-                    key-resolver: "#{@userKeyResolver}"
-
             - id: trajectory-mail-service
               uri: lb://trajectory-mail-service
               predicates:

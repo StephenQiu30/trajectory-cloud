@@ -1,6 +1,6 @@
 # 邮件服务配置
 server:
-  port: 8086
+  port: 8085
 
 spring:
   application:

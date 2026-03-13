@@ -31,12 +31,6 @@
             <artifactId>trajectory-api-log</artifactId>
         </dependency>
 
-        <!-- trajectory-api-search -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-search</artifactId>
-        </dependency>
-
         <!-- LangChain4j -->
         <dependency>
             <groupId>dev.langchain4j</groupId>

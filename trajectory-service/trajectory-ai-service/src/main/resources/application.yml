@@ -1,6 +1,6 @@
 # AI 服务配置
 server:
-  port: 8087
+  port: 8086
 
 spring:
   application:

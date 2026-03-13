@@ -87,22 +87,6 @@ services:
     networks:
       - trajectory-network
 
-  # Elasticsearch 搜索引擎
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
-    container_name: ${ES_CONTAINER_NAME}
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=${ES_PASSWORD}
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=false
-      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
-    ports:
-      - "${ES_PORT_EXTERNAL}:9200"
-    volumes:
-      - elastic-data:/usr/share/elasticsearch/data
-    networks:
-      - trajectory-network
 
   # MinIO 对象存储
   minio:
