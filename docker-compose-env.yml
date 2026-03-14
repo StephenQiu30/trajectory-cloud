@@ -10,11 +10,11 @@ services:
       - MODE=standalone
       - TIME_ZONE=${TZ}
       - NACOS_AUTH_ENABLE=true
-      - NACOS_AUTH_TOKEN=${NACOS_AUTH_TOKEN}
+      - NACOS_AUTH_TOKEN=${NACOS_AUTH_TOKEN:-}
       - NACOS_AUTH_IDENTITY_KEY=nacos
       - NACOS_AUTH_IDENTITY_VALUE=nacos
-      - NACOS_AUTH_USERNAME=${NACOS_USER}
-      - NACOS_AUTH_PASSWORD=${NACOS_PASSWORD}
+      - NACOS_AUTH_USERNAME=${prod.nacos.username}
+      - NACOS_AUTH_PASSWORD=${prod.nacos.password}
       - JVM_XMS=256m
       - JVM_XMX=256m
       - JVM_XMN=128m
@@ -22,8 +22,8 @@ services:
       - ./docker/nacos/logs:/home/nacos/logs
       - ./docker/nacos/data:/home/nacos/data
     ports:
-      - "${NACOS_PORT_EXTERNAL_CONSOLE}:8080"
-      - "${NACOS_PORT_EXTERNAL_8848}:8848"
+      - "8840:8080"
+      - "8848:8848"
       - "9848:9848"
       - "9849:9849"
       - "9850:9850"

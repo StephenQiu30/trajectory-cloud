@@ -80,6 +80,8 @@ logs/
 
 # Environment Variables
 .env
+.env-*
+!.env.example
 
 # Local Docker Data
 docker/*/data/

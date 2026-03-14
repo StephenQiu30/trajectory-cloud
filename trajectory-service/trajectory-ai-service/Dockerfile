@@ -29,11 +29,11 @@ ENV JAVA_OPTS="-Xms128m -Xmx144m -XX:+UseSerialGC -XX:MaxGCPauseMillis=200"
 ENV SPRING_PROFILES_ACTIVE="prod"
 
 # 暴露端口
-EXPOSE 8089
+EXPOSE 8086
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8089/actuator/health || exit 1
+    CMD curl -f http://localhost:8086/actuator/health || exit 1
 
 # 启动命令
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE -jar app.jar"]
