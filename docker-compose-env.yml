@@ -13,8 +13,8 @@ services:
       - NACOS_AUTH_TOKEN=${NACOS_AUTH_TOKEN:-}
       - NACOS_AUTH_IDENTITY_KEY=nacos
       - NACOS_AUTH_IDENTITY_VALUE=nacos
-      - NACOS_AUTH_USERNAME=${prod.nacos.username}
-      - NACOS_AUTH_PASSWORD=${prod.nacos.password}
+      - NACOS_AUTH_USERNAME=${NACOS_USERNAME}
+      - NACOS_AUTH_PASSWORD=${NACOS_PASSWORD}
       - JVM_XMS=256m
       - JVM_XMX=256m
       - JVM_XMN=128m
