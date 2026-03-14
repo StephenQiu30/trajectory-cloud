@@ -112,24 +112,21 @@ graph TD
 
 ```bash
 # 启动中间件环境
-docker-compose -f docker-compose-env.yml up -d
+docker compose -f docker-compose-env.yml up -d
 ```
 
 > [!TIP]
 > **初始化工作**：
 > - **数据库**：首次启动后，请根据 `sql/README.md` 执行初始化脚本。
 > - **配置中心**：访问 Nacos (`http://localhost:8840/nacos`) 并导入 `nacos-config/` 下的配置文件。
->   - *注：出于安全考虑，`*-prod.*` (生产配置) 和 `common-secret.*` (敏感密钥) 已被 `.gitignore` 忽略，请参考示例文件自行创建。*
+>   - *注：请参考示例文件自行创建生产环境配置。*
 
 ### 3. 部署业务项目 (Application)
 在环境准备就绪后，启动网关及所有业务微服务。
 
 ```bash
-# 1.项目打包 (跳过测试)
-mvn clean package -DskipTests
-
-# 2. 启动业务容器
-docker-compose up -d --build
+# 1. 启动项目环境与业务容器 (自动触发 Maven 多阶段打包)
+docker compose up -d --build
 ```
 
 ### 4. 服务访问入口
@@ -138,11 +135,11 @@ docker-compose up -d --build
 | **API 网关/业务入口** | `http://localhost:8080` | - | - |
 | **Nacos 控制台** | `http://localhost:8840/nacos` | `nacos` | `nacos` |
 | **RabbitMQ 管理** | `http://localhost:15672` | `guest` | `guest` |
-| **MinIO 控制台** | `http://localhost:19001` | `admin` | `stephenqhd30.` |
-| **Elasticsearch** | `http://localhost:9200` | `elastic` | `YbG5Wvvm` |
-| **Kibana 可视化** | `http://localhost:5601` | `kibana_system` | `Eg1lqM4C` |
+| **MinIO 控制台** | `http://localhost:19001` | `admin` | `${DEFAULT_PASSWORD}` |
+| **Elasticsearch** | `http://localhost:9200` | `elastic` | `${DEFAULT_PASSWORD}` |
+| **Kibana 可视化** | `http://localhost:5601` | `kibana_system` | `${DEFAULT_PASSWORD}` |
 | **Redis** | `localhost:16379` | - | - |
-| **MySQL** | `localhost:13306` | `root` | `stephenqhd30.` |
+| **MySQL** | `localhost:13306` | `root` | `${DEFAULT_PASSWORD}` |
 
 ---
 

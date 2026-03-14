@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /build
 
@@ -14,8 +14,7 @@ COPY trajectory-api/trajectory-api-log/pom.xml trajectory-api/trajectory-api-log
 
 COPY trajectory-gateway/pom.xml trajectory-gateway/
 
-RUN apk add --no-cache maven && \
-    mvn dependency:go-offline -pl trajectory-gateway -am -B
+RUN mvn dependency:go-offline -pl trajectory-gateway -am -B
 
 COPY trajectory-common trajectory-common
 COPY trajectory-api trajectory-api

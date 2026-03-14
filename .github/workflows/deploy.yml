@@ -11,21 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
-
       - name: Build and Push Docker Images
         # Note: In a real scenario, you would push to a registry like Docker Hub or Aliyun ACR
         # For now, we simulate building images
         run: |
-          docker-compose build
+          docker compose build
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
@@ -38,4 +28,4 @@ jobs:
             cd /path/to/trajectory-cloud
             git pull origin main
             # Only start project services. Environment (middleware) should be started via docker-compose-env.yml if needed.
-            docker-compose up -d --build
+            docker compose up -d --build
