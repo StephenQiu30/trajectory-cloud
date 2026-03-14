@@ -15,6 +15,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -32,6 +37,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -49,6 +59,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -66,6 +81,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -83,6 +103,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -100,9 +125,13 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
-
 
   # Log 日志服务
   log-service:
@@ -118,6 +147,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT_EXTERNAL_8848}
+      - JAVA_OPTS=-Xmx192m -Xms192m -Xss256k -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - trajectory-network
 

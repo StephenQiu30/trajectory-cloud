@@ -1,42 +1,6 @@
 version: '3.8'
 
 services:
-  # MySQL 数据库
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-start-dev
-    restart: always
-    ports:
-      - "${MYSQL_PORT_EXTERNAL}:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      TZ: ${TZ}
-    volumes:
-      - ./docker/mysql/data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
-    command:
-      - --default-authentication-plugin=mysql_native_password
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --max_connections=1000
-    networks:
-      - trajectory-network
-
-  # Redis 缓存
-  redis:
-    image: redis:latest
-    container_name: redis-start-dev
-    ports:
-      - "${REDIS_PORT_EXTERNAL}:6379"
-    command: redis-server --appendonly yes
-    volumes:
-      - ./docker/redis/data:/data
-    networks:
-      - trajectory-network
-
   # Nacos 注册中心和配置中心
   nacos:
     image: nacos/nacos-server:v3.1.1
@@ -51,9 +15,9 @@ services:
       - NACOS_AUTH_IDENTITY_VALUE=nacos
       - NACOS_AUTH_USERNAME=nacos
       - NACOS_AUTH_PASSWORD=nacos
-      - JVM_XMS=512m
-      - JVM_XMX=512m
-      - JVM_XMN=256m
+      - JVM_XMS=256m
+      - JVM_XMX=256m
+      - JVM_XMN=128m
     volumes:
       - ./docker/nacos/logs:/home/nacos/logs
       - ./docker/nacos/data:/home/nacos/data
@@ -65,64 +29,10 @@ services:
       - "9850:9850"
     networks:
       - trajectory-network
-
-  # RabbitMQ 消息队列
-  rabbitmq:
-    image: rabbitmq:4.2.3-management-alpine
-    container_name: rabbitmq-start-dev
-    hostname: rabbitmq-local
-    ports:
-      - "${RABBITMQ_PORT_EXTERNAL_AMQP}:5672"
-      - "${RABBITMQ_PORT_EXTERNAL_MGMT}:15672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-    volumes:
-      - ./docker/rabbitmq/data:/var/lib/rabbitmq
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    networks:
-      - trajectory-network
-
-
-  # MinIO 对象存储
-  minio:
-    image: minio/minio:latest
-    container_name: trajectory-minio
-    ports:
-      - "${MINIO_PORT_EXTERNAL_API}:9000"
-      - "${MINIO_PORT_EXTERNAL_CONSOLE}:9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    command: server /data --console-address ":9001"
-    volumes:
-      - ./docker/minio/data:/data
-    networks:
-      - trajectory-network
-
-  # Seata Server
-  seata-server:
-    image: seataio/seata-server:1.8.0
-    container_name: trajectory-seata
-    ports:
-      - "7091:7091"
-      - "8091:8091"
-    environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USERNAME=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - JVM_XMS=512m
-      - JVM_XMX=512m
-    volumes:
-      - ./docker/seata/logs:/root/logs/seata
-    networks:
-      - trajectory-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
 networks:
   trajectory-network:
