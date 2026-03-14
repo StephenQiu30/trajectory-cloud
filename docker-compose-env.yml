@@ -40,5 +40,6 @@ networks:
     driver: bridge
 
 volumes:
-  elastic-data:
+  # Nacos 数据持久化
+  nacos-data:
     driver: local
