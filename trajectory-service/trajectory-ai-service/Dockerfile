@@ -2,28 +2,7 @@ FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /build
 
-COPY pom.xml .
-COPY trajectory-common/pom.xml trajectory-common/
-COPY trajectory-common/trajectory-common-core/pom.xml trajectory-common/trajectory-common-core/
-COPY trajectory-common/trajectory-common-web/pom.xml trajectory-common/trajectory-common-web/
-COPY trajectory-common/trajectory-common-mysql/pom.xml trajectory-common/trajectory-common-mysql/
-COPY trajectory-common/trajectory-common-cache/pom.xml trajectory-common/trajectory-common-cache/
-COPY trajectory-common/trajectory-common-auth/pom.xml trajectory-common/trajectory-common-auth/
-COPY trajectory-common/trajectory-common-log/pom.xml trajectory-common/trajectory-common-log/
-COPY trajectory-common/trajectory-common-rabbitmq/pom.xml trajectory-common/trajectory-common-rabbitmq/
-COPY trajectory-api/pom.xml trajectory-api/
-COPY trajectory-api/trajectory-api-user/pom.xml trajectory-api/trajectory-api-user/
-COPY trajectory-api/trajectory-api-log/pom.xml trajectory-api/trajectory-api-log/
-COPY trajectory-api/trajectory-api-ai/pom.xml trajectory-api/trajectory-api-ai/
-COPY trajectory-service/pom.xml trajectory-service/
-COPY trajectory-service/trajectory-ai-service/pom.xml trajectory-service/trajectory-ai-service/
-
-RUN mvn dependency:go-offline -pl trajectory-service/trajectory-ai-service -am -B
-
-COPY trajectory-common trajectory-common
-COPY trajectory-api trajectory-api
-COPY trajectory-service trajectory-service
-
+COPY . .
 RUN mvn clean package -pl trajectory-service/trajectory-ai-service -am -DskipTests -B
 
 FROM eclipse-temurin:21-jre-alpine
