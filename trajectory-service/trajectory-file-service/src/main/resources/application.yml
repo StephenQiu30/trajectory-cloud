@@ -6,29 +6,27 @@ spring:
     name: trajectory-file-service
   profiles:
     active: default
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR:localhost:8848}
+        namespace: trajectory-cloud
+        group: DEFAULT_GROUP
+        username: ${SPRING_CLOUD_NACOS_USERNAME:nacos}
+        password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
+      config:
+        server-addr: ${SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR:localhost:8848}
+        namespace: trajectory-cloud
+        group: DEFAULT_GROUP
+        file-extension: yml
+        username: ${SPRING_CLOUD_NACOS_USERNAME:nacos}
+        password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
   config:
-    activate:
-      on-profile: default
     import:
       - nacos:common-secret.properties?group=DEFAULT_GROUP&refresh=true
       - nacos:common-web.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-cache.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-oss.yml?group=DEFAULT_GROUP&refresh=true
-  cloud:
-    nacos:
-      config:
-        server-addr: localhost:8848
-        namespace: trajectory-cloud
-        group: DEFAULT_GROUP
-        file-extension: yml
-        username: nacos
-        password: nacos
-      discovery:
-        server-addr: localhost:8848
-        namespace: trajectory-cloud
-        group: DEFAULT_GROUP
-        username: nacos
-        password: nacos
   servlet:
     multipart:
       max-file-size: 10MB

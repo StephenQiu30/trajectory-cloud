@@ -1,12 +1,12 @@
-# 日志服务配置
+# AI 服务配置 (Production)
 server:
-  port: 8084
+  port: 8086
 
 spring:
   application:
-    name: trajectory-log-service
+    name: trajectory-ai-service
   profiles:
-    active: default
+    active: prod
   cloud:
     nacos:
       discovery:
@@ -24,12 +24,18 @@ spring:
         password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
   config:
     import:
-      - nacos:common-secret.properties?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-web.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-cache.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-mysql.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-rabbitmq.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-secret-prod.properties?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-web-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-cache-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-mysql-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-rabbitmq-prod.yml?group=DEFAULT_GROUP&refresh=true
+
+# AI 模型配置
+ai:
+  dashscope:
+    apiKey: ${prod.aliyun.dashscope.api-key}
+    modelName: ${prod.aliyun.dashscope.model-name}
 
 # MyBatis-Plus 业务配置
 mybatis-plus:
-  type-aliases-package: com.trajectory.cloud.log.model.entity
+  type-aliases-package: com.trajectory.cloud.ai.model.entity

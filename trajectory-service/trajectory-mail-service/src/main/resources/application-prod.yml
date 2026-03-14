@@ -1,4 +1,4 @@
-# 邮件服务配置
+# 邮件服务配置 (Production)
 server:
   port: 8085
 
@@ -6,7 +6,7 @@ spring:
   application:
     name: trajectory-mail-service
   profiles:
-    active: default
+    active: prod
   cloud:
     nacos:
       discovery:
@@ -24,8 +24,8 @@ spring:
         password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
   config:
     import:
-      - nacos:common-secret.properties?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-web.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-cache.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-rabbitmq.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-mail.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-secret-prod.properties?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-web-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-cache-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-rabbitmq-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-mail-prod.yml?group=DEFAULT_GROUP&refresh=true

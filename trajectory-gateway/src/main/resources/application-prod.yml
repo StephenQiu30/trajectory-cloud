@@ -1,4 +1,4 @@
-# 网关服务配置
+# 网关服务配置 (Production)
 server:
   port: 8080
 
@@ -6,7 +6,7 @@ spring:
   application:
     name: trajectory-gateway
   profiles:
-    active: default
+    active: prod
   main:
     web-application-type: reactive
   cloud:
@@ -26,9 +26,9 @@ spring:
         password: ${SPRING_CLOUD_NACOS_PASSWORD:nacos}
   config:
     import:
-      - nacos:common-secret.properties?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-web.yml?group=DEFAULT_GROUP&refresh=true
-      - nacos:common-cache.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-secret-prod.properties?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-web-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-cache-prod.yml?group=DEFAULT_GROUP&refresh=true
   gateway:
     auth:
       white-list:
