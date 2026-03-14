@@ -5,8 +5,6 @@ server:
 spring:
   application:
     name: trajectory-gateway
-  profiles:
-    active: prod
   main:
     web-application-type: reactive
   cloud:

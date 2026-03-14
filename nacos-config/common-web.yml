@@ -44,14 +44,6 @@ knife4j:
     enable-swagger-models: true
     enable-document-manage: true
 
-# 统一日志配置
-logging:
-  config: classpath:logback-spring.xml
-
-# Logstash 配置
-logstash:
-  host: localhost
-  port: 5000
 
 # Sa-Token 配置 (Dev)
 sa-token:
@@ -81,23 +73,3 @@ login:
       length: 6
       send-limit: 60
 
-# 监控配置: Actuator & Prometheus
-management:
-  endpoints:
-    web:
-      exposure:
-        include: 'health,info'
-  endpoint:
-    health:
-      show-details: always
-  health:
-    elasticsearch:
-      enabled: false
-    redis:
-      enabled: true
-    rabbit:
-      enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-    export:

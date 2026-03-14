@@ -80,7 +80,7 @@
         <flexmark.version>0.64.8</flexmark.version>
         <poi.version>5.3.0</poi.version>
         <ip2region.version>2.7.0</ip2region.version>
-        <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+
     </properties>
 
     <dependencyManagement>
@@ -373,12 +373,6 @@
                 <version>${ip2region.version}</version>
             </dependency>
 
-            <!-- Logstash Logback Encoder -->
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logstash-logback-encoder.version}</version>
-            </dependency>
 
             <!-- JUnit -->
             <dependency>
@@ -531,6 +525,11 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                    <configuration>
+                        <layers>
+                            <enabled>true</enabled>
+                        </layers>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>

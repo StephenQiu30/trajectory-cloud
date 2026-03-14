@@ -5,8 +5,7 @@ server:
 spring:
   application:
     name: trajectory-user-service
-  profiles:
-    active: prod
+
   cloud:
     nacos:
       discovery:

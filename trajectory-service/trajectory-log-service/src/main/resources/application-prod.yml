@@ -5,8 +5,7 @@ server:
 spring:
   application:
     name: trajectory-log-service
-  profiles:
-    active: prod
+
   cloud:
     nacos:
       discovery:
