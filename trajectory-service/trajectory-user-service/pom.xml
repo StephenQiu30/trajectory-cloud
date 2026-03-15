@@ -46,6 +46,10 @@
             <artifactId>trajectory-common-rabbitmq</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>cos_api</artifactId>
+        </dependency>
 
         <!-- Spring Mail -->
         <dependency>

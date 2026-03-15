@@ -13,17 +13,26 @@ import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
 import com.trajectory.cloud.common.utils.IpUtils;
 import com.trajectory.cloud.user.convert.UserConvert;
 import com.trajectory.cloud.user.model.entity.User;
+import com.trajectory.cloud.user.model.vo.AvatarUploadVO;
 import com.trajectory.cloud.user.service.UserEmailService;
 import com.trajectory.cloud.user.service.UserService;
+import com.trajectory.cloud.user.storage.properties.FileStorageProperties;
+import com.trajectory.cloud.user.storage.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.io.FileUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +55,12 @@ public class UserController {
 
     @Resource
     private MqSender mqSender;
+
+    @Resource
+    private ObjectProvider<FileStorageService> fileStorageServiceProvider;
+
+    @Resource
+    private FileStorageProperties fileStorageProperties;
 
     /**
      * GitHub 登录
@@ -115,6 +130,31 @@ public class UserController {
     public BaseResponse<String> getGitHubAuthorizeUrl() {
         String authorizeUrl = userService.getGitHubAuthorizeUrl();
         return ResultUtils.success(authorizeUrl);
+    }
+
+    @PostMapping(value = "/avatar/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "上传用户头像", description = "上传头像图片，返回访问 URL")
+    public BaseResponse<AvatarUploadVO> uploadAvatar(@RequestPart("file") MultipartFile file,
+                                                     HttpServletRequest request) {
+        ThrowUtils.throwIf(file == null || file.isEmpty(), ErrorCode.PARAMS_ERROR, "文件不能为空");
+        ThrowUtils.throwIf(!StpUtil.isLogin(), ErrorCode.NOT_LOGIN_ERROR);
+        long fileSize = file.getSize();
+        long FIVE_MB = 5 * 1024L * 1024L;
+        ThrowUtils.throwIf(fileSize > FIVE_MB, ErrorCode.PARAMS_ERROR, "用户头像文件大小不能超过 5M");
+        String originalFilename = file.getOriginalFilename();
+        ThrowUtils.throwIf(originalFilename == null, ErrorCode.PARAMS_ERROR, "文件名不能为空");
+        String fileSuffix = FileUtil.getSuffix(originalFilename).toLowerCase();
+        ThrowUtils.throwIf(!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix),
+                ErrorCode.PARAMS_ERROR, "用户头像仅支持 jpeg、jpg、svg、png、webp 格式");
+        FileStorageService fileStorageService = fileStorageServiceProvider.getIfAvailable();
+        ThrowUtils.throwIf(fileStorageService == null, ErrorCode.SYSTEM_ERROR, "未配置对象存储");
+        Long userId = StpUtil.getLoginIdAsLong();
+        String path = String.format("/%s/user_avatar/%s", fileStorageProperties.getPathPrefix(), userId);
+        String fileUrl = fileStorageService.upload(file, path);
+        return ResultUtils.success(AvatarUploadVO.builder()
+                .url(fileUrl)
+                .fileName(originalFilename)
+                .build());
     }
 
     /**

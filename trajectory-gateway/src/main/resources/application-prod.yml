@@ -68,17 +68,6 @@ spring:
                     redis-rate-limiter.burstCapacity: 40
                     key-resolver: "#{@userKeyResolver}"
 
-            - id: trajectory-file-service
-              uri: lb://trajectory-file-service
-              predicates:
-                - Path=/api/file/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 20
-                    key-resolver: "#{@userKeyResolver}"
-
             - id: trajectory-ai-service
               uri: lb://trajectory-ai-service
               predicates:

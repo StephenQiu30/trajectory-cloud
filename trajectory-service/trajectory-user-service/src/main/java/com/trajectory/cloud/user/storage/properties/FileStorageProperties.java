@@ -1,25 +1,14 @@
-package com.trajectory.cloud.file.config.properties;
+package com.trajectory.cloud.user.storage.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-/**
- * 文件存储配置属性
- *
- * @author StephenQiu30
- */
 @Data
+@Component
 @ConfigurationProperties(prefix = "file.storage")
 public class FileStorageProperties {
 
-    /**
-     * 存储类型
-     */
-    private String type = "COS";
-
-    /**
-     * 路径前缀
-     */
+    private String type = "cos";
     private String pathPrefix = "stephen";
-
 }

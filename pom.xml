@@ -436,12 +436,6 @@
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-api-file</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
                 <artifactId>trajectory-api-notification</artifactId>
                 <version>${trajectory-cloud.version}</version>
             </dependency>
@@ -471,13 +465,6 @@
                 <artifactId>trajectory-notification-service</artifactId>
                 <version>${trajectory-cloud.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-file-service</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>

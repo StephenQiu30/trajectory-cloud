@@ -31,6 +31,16 @@ spring:
       - nacos:common-rabbitmq.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-social.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-mail.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-oss.yml?group=DEFAULT_GROUP&refresh=true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+file:
+  storage:
+    type: cos
+    path-prefix: stephen
 
 # MyBatis-Plus 业务配置
 mybatis-plus:

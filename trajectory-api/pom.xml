@@ -16,7 +16,6 @@
 
     <modules>
         <module>trajectory-api-user</module>
-        <module>trajectory-api-file</module>
         <module>trajectory-api-notification</module>
         <module>trajectory-api-ai</module>
     </modules>
