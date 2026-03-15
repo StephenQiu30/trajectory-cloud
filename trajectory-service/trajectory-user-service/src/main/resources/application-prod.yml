@@ -28,6 +28,7 @@ spring:
       - nacos:common-mysql-prod.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-rabbitmq-prod.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-social-prod.yml?group=DEFAULT_GROUP&refresh=true
+      - nacos:common-mail.yml?group=DEFAULT_GROUP&refresh=true
 
 # MyBatis-Plus 业务配置
 mybatis-plus:

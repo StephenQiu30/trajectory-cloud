@@ -60,7 +60,7 @@ services:
     container_name: trajectory-ai-service
     restart: always
     ports:
-      - "${AI_SERVICE_PORT_EXTERNAL}:8086"
+      - "${AI_SERVICE_PORT_EXTERNAL}:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
@@ -86,31 +86,6 @@ services:
     restart: always
     ports:
       - "${FILE_SERVICE_PORT_EXTERNAL}:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
-      - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
-      - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
-    deploy:
-      resources:
-        limits:
-          memory: 320M
-    networks:
-      - trajectory-network
-
-  # Mail 邮件服务
-  mail-service:
-    build:
-      context: .
-      dockerfile: trajectory-service/trajectory-mail-service/Dockerfile
-    image: trajectory-mail-service:latest
-    container_name: trajectory-mail-service
-    restart: always
-    ports:
-      - "${MAIL_SERVICE_PORT_EXTERNAL}:8085"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}

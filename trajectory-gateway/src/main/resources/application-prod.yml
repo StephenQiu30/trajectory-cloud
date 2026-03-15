@@ -79,17 +79,6 @@ spring:
                     redis-rate-limiter.burstCapacity: 20
                     key-resolver: "#{@userKeyResolver}"
 
-            - id: trajectory-mail-service
-              uri: lb://trajectory-mail-service
-              predicates:
-                - Path=/api/mail/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 5
-                    redis-rate-limiter.burstCapacity: 10
-                    key-resolver: "#{@ipKeyResolver}"
-
             - id: trajectory-ai-service
               uri: lb://trajectory-ai-service
               predicates:

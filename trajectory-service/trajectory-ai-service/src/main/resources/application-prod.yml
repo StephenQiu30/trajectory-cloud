@@ -1,6 +1,6 @@
 # AI 服务配置 (Production)
 server:
-  port: 8086
+  port: 8084
 
 spring:
   application:

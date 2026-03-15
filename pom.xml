@@ -449,12 +449,6 @@
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-api-mail</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
                 <artifactId>trajectory-api-ai</artifactId>
                 <version>${trajectory-cloud.version}</version>
             </dependency>
@@ -484,12 +478,6 @@
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-mail-service</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>

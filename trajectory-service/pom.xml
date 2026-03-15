@@ -18,7 +18,6 @@
         <module>trajectory-user-service</module>
         <module>trajectory-notification-service</module>
         <module>trajectory-file-service</module>
-        <module>trajectory-mail-service</module>
         <module>trajectory-ai-service</module>
     </modules>
 

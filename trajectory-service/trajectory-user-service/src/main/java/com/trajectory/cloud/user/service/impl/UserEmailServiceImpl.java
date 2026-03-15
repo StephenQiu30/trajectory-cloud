@@ -1,12 +1,11 @@
 package com.trajectory.cloud.user.service.impl;
 
-import com.trajectory.cloud.api.mail.client.MailFeignClient;
-import com.trajectory.cloud.api.mail.model.dto.EmailCodeRequest;
-import com.trajectory.cloud.api.mail.model.vo.EmailCodeVO;
-import com.trajectory.cloud.common.common.BaseResponse;
 import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ThrowUtils;
 import com.trajectory.cloud.common.utils.RegexUtils;
+import com.trajectory.cloud.user.mail.model.dto.EmailCodeRequest;
+import com.trajectory.cloud.user.mail.model.vo.EmailCodeVO;
+import com.trajectory.cloud.user.mail.service.EmailCodeService;
 import com.trajectory.cloud.user.service.UserEmailService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Service;
 public class UserEmailServiceImpl implements UserEmailService {
 
     @Resource
-    private MailFeignClient mailFeignClient;
+    private EmailCodeService emailCodeService;
 
     /**
      * 发送邮箱验证码
@@ -42,11 +41,10 @@ public class UserEmailServiceImpl implements UserEmailService {
         EmailCodeRequest emailCodeRequest = new EmailCodeRequest();
         emailCodeRequest.setEmail(normalizedEmail);
         emailCodeRequest.setClientIp(clientIp);
-        BaseResponse<EmailCodeVO> sendResponse = mailFeignClient.addEmailCode(emailCodeRequest);
-        ThrowUtils.throwIf(sendResponse == null || sendResponse.getData() == null
-                        || sendResponse.getData().getExpireTime() == null, ErrorCode.OPERATION_ERROR,
+        EmailCodeVO emailCodeVO = emailCodeService.sendEmailCode(emailCodeRequest);
+        ThrowUtils.throwIf(emailCodeVO == null || emailCodeVO.getExpireTime() == null, ErrorCode.OPERATION_ERROR,
                 "发送验证码失败");
-        return sendResponse.getData().getExpireTime();
+        return emailCodeVO.getExpireTime();
     }
 
     /**
@@ -66,8 +64,7 @@ public class UserEmailServiceImpl implements UserEmailService {
         EmailCodeRequest emailCodeRequest = new EmailCodeRequest();
         emailCodeRequest.setEmail(normalizedEmail);
         emailCodeRequest.setCode(code);
-        BaseResponse<Boolean> verifyResponse = mailFeignClient.verifyEmailCode(emailCodeRequest);
-        return verifyResponse != null && verifyResponse.getData() != null && verifyResponse.getData();
+        return emailCodeService.verifyEmailCode(emailCodeRequest);
     }
 
     /**
@@ -81,9 +78,7 @@ public class UserEmailServiceImpl implements UserEmailService {
         String normalizedEmail = StringUtils.trimToEmpty(email);
         ThrowUtils.throwIf(StringUtils.isBlank(normalizedEmail), ErrorCode.PARAMS_ERROR, "邮箱地址不能为空");
         ThrowUtils.throwIf(!RegexUtils.checkEmail(normalizedEmail), ErrorCode.PARAMS_ERROR, "用户邮箱格式有误");
-        EmailCodeRequest emailCodeRequest = new EmailCodeRequest();
-        emailCodeRequest.setEmail(normalizedEmail);
-        BaseResponse<Boolean> deleteResponse = mailFeignClient.deleteEmailCode(emailCodeRequest);
-        return deleteResponse != null && deleteResponse.getData() != null && deleteResponse.getData();
+        emailCodeService.deleteEmailCode(normalizedEmail);
+        return true;
     }
 }
