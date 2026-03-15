@@ -4,7 +4,7 @@ services:
   # Nacos 注册中心和配置中心
   nacos:
     image: nacos/nacos-server:v3.1.1
-    container_name: nacos-standalone
+    container_name: trajectory-nacos
     restart: always
     environment:
       - MODE=standalone
@@ -15,8 +15,8 @@ services:
       - NACOS_AUTH_IDENTITY_VALUE=${NACOS_AUTH_IDENTITY_VALUE}
       - NACOS_AUTH_USERNAME=${NACOS_USERNAME}
       - NACOS_AUTH_PASSWORD=${NACOS_PASSWORD}
-      - JVM_XMS=384m
-      - JVM_XMX=384m
+      - JVM_XMS=256m
+      - JVM_XMX=256m
       - JVM_XMN=128m
       - JAVA_OPT_EXT=-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m
     volumes:
@@ -33,14 +33,59 @@ services:
     deploy:
       resources:
         limits:
-          memory: 640M
+          memory: 512M
+
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: trajectory-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${MYSQL_PORT_EXTERNAL}:3306"
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_connections=200
+    networks:
+      - trajectory-network
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  # Redis 缓存与分布式锁
+  redis:
+    image: redis:latest
+    container_name: trajectory-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ./docker/redis/data:/data
+    ports:
+      - "${REDIS_PORT_EXTERNAL}:6379"
+    networks:
+      - trajectory-network
+    deploy:
+      resources:
+        limits:
+          memory: 64M
 
   # RabbitMQ 消息队列
   rabbitmq:
     image: rabbitmq:4.2.3-management-alpine
-    container_name: rabbitmq-local
+    container_name: trajectory-rabbitmq
     restart: always
-    hostname: rabbitmq-local
+    hostname: trajectory-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -59,7 +104,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 256M
 
 networks:
   trajectory-network:

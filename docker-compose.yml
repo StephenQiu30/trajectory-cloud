@@ -1,7 +1,7 @@
+# 2核4G 服务器：应用总内存约 2.2G，预留 ~1.8G 给系统/Nacos/MySQL/Redis/RabbitMQ 等
 version: '3.8'
 
 services:
-  # Gateway 网关服务
   gateway:
     build:
       context: .
@@ -18,15 +18,17 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=64m -XX:MaxRAMPercentage=65 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 320M
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          memory: 128M
     networks:
       - trajectory-network
 
-  # User 用户服务
   user-service:
     build:
       context: .
@@ -43,15 +45,17 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 320M
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
     networks:
       - trajectory-network
 
-  # Notification 通知服务
   notification-service:
     build:
       context: .
@@ -69,15 +73,17 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=80m -XX:MaxRAMPercentage=55 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 320M
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          memory: 192M
     networks:
       - trajectory-network
 
-  # AI 智能化服务
   ai-service:
     build:
       context: .
@@ -94,11 +100,14 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 320M
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
     networks:
       - trajectory-network
 
