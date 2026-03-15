@@ -92,11 +92,13 @@ graph TD
 本项目采用**环境 (Middleware)** 与 **业务 (Application)** 分离的容器化部署方案。
 
 ### 0. 前置准备
+
 - **Docker & Docker Compose**: 确保已安装最新版本。
 - **Java 21**: 本地调试需要 JDK 21 环境。
 - **Maven**: 用于项目打包。
 
 ### 1. 配置环境变量 (`.env`)
+
 项目根目录下的 [.env](.env) 文件集中管理了所有服务的敏感信息和端口。
 > [!IMPORTANT]
 > 由于安全原因，`.env` 文件不会被提交到仓库。请先通过以下命令创建：
@@ -108,6 +110,7 @@ graph TD
 - `ES_VERSION`: Elasticsearch 版本 (需与本地环境匹配，当前为 `9.3.0-arm64`)。
 
 ### 2. 部署基础环境 (Infrastructure)
+
 基础环境包含 MySQL, Redis, Nacos, RabbitMQ, ES 等中间件。
 
 ```bash
@@ -119,9 +122,11 @@ docker compose -f docker-compose-env.yml up -d
 > **初始化工作**：
 > - **数据库**：首次启动后，请根据 `sql/README.md` 执行初始化脚本。
 > - **配置中心**：访问 Nacos (`http://localhost:8840/nacos`) 并导入 `nacos-config/` 下的配置文件。
->   - *注：请参考示例文件自行创建生产环境配置。*
+    >
+- *注：请参考示例文件自行创建生产环境配置。*
 
 ### 3. 部署业务项目 (Application)
+
 在环境准备就绪后，启动网关及所有业务微服务。
 
 ```bash
@@ -130,16 +135,17 @@ docker compose up -d --build
 ```
 
 ### 4. 服务访问入口
-| 服务 | 宿主机地址 | 默认账号 | 默认密码 |
-|:---|:---|:---|:---|
-| **API 网关/业务入口** | `http://localhost:8080` | - | - |
-| **Nacos 控制台** | `http://localhost:8840/nacos` | `nacos` | `nacos` |
-| **RabbitMQ 管理** | `http://localhost:15672` | `guest` | `guest` |
-| **MinIO 控制台** | `http://localhost:19001` | `admin` | `${DEFAULT_PASSWORD}` |
-| **Elasticsearch** | `http://localhost:9200` | `elastic` | `${DEFAULT_PASSWORD}` |
-| **Kibana 可视化** | `http://localhost:5601` | `kibana_system` | `${DEFAULT_PASSWORD}` |
-| **Redis** | `localhost:16379` | - | - |
-| **MySQL** | `localhost:13306` | `root` | `${DEFAULT_PASSWORD}` |
+
+| 服务                | 宿主机地址                         | 默认账号            | 默认密码                  |
+|:------------------|:------------------------------|:----------------|:----------------------|
+| **API 网关/业务入口**   | `http://localhost:8080`       | -               | -                     |
+| **Nacos 控制台**     | `http://localhost:8840/nacos` | `nacos`         | `nacos`               |
+| **RabbitMQ 管理**   | `http://localhost:15672`      | `guest`         | `guest`               |
+| **MinIO 控制台**     | `http://localhost:19001`      | `admin`         | `${DEFAULT_PASSWORD}` |
+| **Elasticsearch** | `http://localhost:9200`       | `elastic`       | `${DEFAULT_PASSWORD}` |
+| **Kibana 可视化**    | `http://localhost:5601`       | `kibana_system` | `${DEFAULT_PASSWORD}` |
+| **Redis**         | `localhost:16379`             | -               | -                     |
+| **MySQL**         | `localhost:13306`             | `root`          | `${DEFAULT_PASSWORD}` |
 
 ---
 

@@ -9,5 +9,6 @@ COPY trajectory-service/trajectory-notification-service/target/trajectory-notifi
 
 ENV SPRING_PROFILES_ACTIVE="prod"
 EXPOSE 8082
+EXPOSE 9091
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

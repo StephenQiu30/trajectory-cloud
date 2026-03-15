@@ -107,6 +107,7 @@ public class GitHubServiceImpl implements GitHubService {
             return null;
         }
     }
+
     @Override
     public String buildAuthorizeUrl() {
         String clientId = gitHubProperties.getClientId();

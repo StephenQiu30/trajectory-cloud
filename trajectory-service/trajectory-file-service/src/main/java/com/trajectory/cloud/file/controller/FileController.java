@@ -64,8 +64,8 @@ public class FileController {
     @Operation(summary = "文件上传", description = "统一样式的文件上传接口，支持按业务类型进行校验")
     @OperationLog(module = "文件管理", action = "上传文件")
     public BaseResponse<FileUploadVO> addFile(@RequestPart("file") MultipartFile multipartFile,
-            FileUploadRequest fileUploadRequest,
-            HttpServletRequest request) {
+                                              FileUploadRequest fileUploadRequest,
+                                              HttpServletRequest request) {
         // 校验文件不为空
         ThrowUtils.throwIf(multipartFile == null || multipartFile.isEmpty(), ErrorCode.PARAMS_ERROR, "文件不能为空");
         // 校验业务参数不为空

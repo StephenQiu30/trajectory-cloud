@@ -24,7 +24,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,
+        id
+        ,
         user_name,
         user_avatar,user_profile,user_role,user_email,
         email_verified,github_id,github_login,
