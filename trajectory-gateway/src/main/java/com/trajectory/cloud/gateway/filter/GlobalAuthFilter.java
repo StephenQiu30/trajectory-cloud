@@ -78,10 +78,12 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         // 使用 SaReactorSyncHolder 包装，确保 SaToken 上下文在 WebFlux 环境中可用
         return SaReactorSyncHolder.setContext(exchange, () -> {
             try {
-                // 1. 检查 token 是否存在
+                // 1. 检查 token：Sa-Token 从请求头 Authorization: Bearer <token> 读取，须与 Nacos 中 token-name/token-prefix 一致
                 String token = StpUtil.getTokenValue();
                 if (StrUtil.isBlank(token)) {
-                    log.warn("[Auth] 未携带 token: {} {}", method, path);
+                    // 便于排查：true 表示带了 Authorization 但未解析出 token（如格式错误），false 表示未带该头
+                    boolean hasAuthHeader = request.getHeaders().getFirst(SecurityConstant.AUTHORIZATION_HEADER) != null;
+                    log.warn("[Auth] 未携带有效 token: {} {}, hasAuthorizationHeader={}", method, path, hasAuthHeader);
                     return writeUnauthorizedResponse(exchange.getResponse(), "未登录");
                 }
 
@@ -104,8 +106,11 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
                 log.info("[Auth] 认证通过: userId={}, userName={}, path={}", userId, userName, path);
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
             } catch (Exception e) {
-                log.warn("[Auth] token 验证失败: {} {}, reason={}", method, path, e.getMessage());
-                return writeUnauthorizedResponse(exchange.getResponse(), "登录已过期");
+                String token = request.getHeaders().getFirst(SecurityConstant.AUTHORIZATION_HEADER);
+                boolean hasAuth = StrUtil.isNotBlank(token);
+                log.error("[Auth] token 验证异常: {} {}, hasAuthHeader={}, error={}", method, path, hasAuth, e.getMessage());
+                String errorMessage = (e instanceof cn.dev33.satoken.exception.NotLoginException) ? "登录已过期" : "系统认证异常";
+                return writeUnauthorizedResponse(exchange.getResponse(), errorMessage);
             }
         });
     }

@@ -8,6 +8,12 @@ package com.trajectory.cloud.common.constants;
 public interface SecurityConstant {
 
     /**
+     * 认证请求头名称，与 Nacos 中 sa-token.token-name 保持一致。
+     * 前端需设置：Authorization: Bearer &lt;token&gt;，否则网关会返回 401。
+     */
+    String AUTHORIZATION_HEADER = "Authorization";
+
+    /**
      * 请求来源
      */
     String FROM_SOURCE = "from-source";

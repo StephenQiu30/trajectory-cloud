@@ -5,7 +5,6 @@ server:
 spring:
   application:
     name: trajectory-mail-service
-
   cloud:
     nacos:
       discovery:

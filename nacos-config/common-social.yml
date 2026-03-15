@@ -1,9 +1,5 @@
 # 社交登录配置文件 (Dev/Default)
 
-spring:
-  config:
-    activate:
-      on-profile: default
 
 
 # GitHub OAuth2 配置

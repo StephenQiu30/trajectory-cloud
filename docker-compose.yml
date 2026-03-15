@@ -18,11 +18,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
+          memory: 320M
     networks:
       - trajectory-network
 
@@ -43,11 +43,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
+          memory: 320M
     networks:
       - trajectory-network
 
@@ -68,11 +68,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=256m -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 320M
     networks:
       - trajectory-network
 
@@ -93,11 +93,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
+          memory: 320M
     networks:
       - trajectory-network
 
@@ -118,11 +118,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
+          memory: 320M
     networks:
       - trajectory-network
 
@@ -144,36 +144,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
-    networks:
-      - trajectory-network
-
-  # Log 日志服务
-  log-service:
-    build:
-      context: .
-      dockerfile: trajectory-service/trajectory-log-service/Dockerfile
-    image: trajectory-log-service:latest
-    container_name: trajectory-log-service
-    restart: always
-    ports:
-      - "${LOG_SERVICE_PORT_EXTERNAL}:8084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
-      - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
-      - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
-      - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
-    deploy:
-      resources:
-        limits:
-          memory: 448M
+          memory: 320M
     networks:
       - trajectory-network
 

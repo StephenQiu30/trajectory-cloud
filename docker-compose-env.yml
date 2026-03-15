@@ -15,8 +15,8 @@ services:
       - NACOS_AUTH_IDENTITY_VALUE=${NACOS_AUTH_IDENTITY_VALUE}
       - NACOS_AUTH_USERNAME=${NACOS_USERNAME}
       - NACOS_AUTH_PASSWORD=${NACOS_PASSWORD}
-      - JVM_XMS=256m
-      - JVM_XMX=256m
+      - JVM_XMS=384m
+      - JVM_XMX=384m
       - JVM_XMN=128m
       - JAVA_OPT_EXT=-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m
     volumes:
@@ -33,7 +33,33 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 640M
+
+  # RabbitMQ 消息队列
+  rabbitmq:
+    image: rabbitmq:4.2.3-management-alpine
+    container_name: rabbitmq-local
+    restart: always
+    hostname: rabbitmq-local
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - ./docker/rabbitmq/data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - trajectory-network
+    deploy:
+      resources:
+        limits:
+          memory: 384M
 
 networks:
   trajectory-network:

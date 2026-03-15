@@ -1,10 +1,5 @@
 # 缓存服务配置 (通用)
 spring:
-  config:
-    activate:
-      on-profile: default
-
-  # Spring Data Redis 配置
   data:
     redis:
       database: ${dev.redis.database}

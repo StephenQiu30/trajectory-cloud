@@ -8,6 +8,7 @@ import com.trajectory.cloud.common.cache.constants.KeyPrefixConstants;
 import com.trajectory.cloud.common.cache.utils.CacheUtils;
 import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ThrowUtils;
+import com.trajectory.cloud.common.exception.BusinessException;
 import com.trajectory.cloud.user.config.GitHubProperties;
 import com.trajectory.cloud.user.service.GitHubService;
 import jakarta.annotation.Resource;
@@ -61,22 +62,30 @@ public class GitHubServiceImpl implements GitHubService {
                     .header("User-Agent", "trajectory-cloud")
                     .timeout(5000)
                     .execute();
-            if (response.getStatus() != 200) {
-                log.warn("GitHub access_token 请求失败，status={}, body={}", response.getStatus(), response.body());
-                return null;
-            }
+            int status = response.getStatus();
             String body = response.body();
+            if (status != 200) {
+                log.warn("GitHub access_token 请求失败，status={}, body={}", status, body);
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "GitHub 返回异常: " + (StringUtils.isNotBlank(body) ? body : "status=" + status));
+            }
             if (StringUtils.isBlank(body)) {
-                return null;
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取 GitHub Access Token 失败: 响应为空");
             }
-            String accessToken = JSONUtil.parseObj(body).getStr("access_token");
-            if (StringUtils.isBlank(accessToken)) {
-                log.warn("GitHub access_token 响应缺少 token，body={}", body);
+            var json = JSONUtil.parseObj(body);
+            String accessToken = json.getStr("access_token");
+            if (StringUtils.isNotBlank(accessToken)) {
+                return accessToken;
             }
-            return accessToken;
+            String error = json.getStr("error");
+            String errorDesc = json.getStr("error_description");
+            log.warn("GitHub access_token 响应无 token，error={}, error_description={}, body={}", error, errorDesc, body);
+            String msg = StringUtils.isNotBlank(errorDesc) ? errorDesc : (StringUtils.isNotBlank(error) ? error : "未知错误");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取 GitHub Access Token 失败: " + msg);
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("GitHub access_token 请求异常", e);
-            return null;
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取 GitHub Access Token 失败: " + e.getMessage());
         }
     }
 

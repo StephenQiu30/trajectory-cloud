@@ -1,8 +1,5 @@
 # RabbitMQ 配置 (Default)
 spring:
-  config:
-    activate:
-      on-profile: default
   rabbitmq:
     host: ${dev.rabbitmq.host}
     port: ${dev.rabbitmq.port}

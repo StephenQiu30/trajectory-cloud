@@ -41,11 +41,9 @@ spring:
           - /api/*/v3/api-docs/**
       filter:
         request-rate-limiter:
-          # 默认限流 KeyResolver（避免多 KeyResolver Bean 冲突）
           key-resolver: "#{@ipKeyResolver}"
       server:
         webflux:
-          # 路由配置
           routes:
             - id: trajectory-user-service
               uri: lb://trajectory-user-service
@@ -84,6 +82,7 @@ spring:
                     redis-rate-limiter.replenishRate: 10
                     redis-rate-limiter.burstCapacity: 20
                     key-resolver: "#{@userKeyResolver}"
+
             - id: trajectory-mail-service
               uri: lb://trajectory-mail-service
               predicates:
@@ -106,30 +105,15 @@ spring:
                     redis-rate-limiter.burstCapacity: 10
                     key-resolver: "#{@userKeyResolver}"
 
-            - id: trajectory-log-service
-              uri: lb://trajectory-log-service
-              predicates:
-                - Path=/api/log/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 20
-                    key-resolver: "#{@userKeyResolver}"
-
-          # 全局跨域配置
           globalcors:
             cors-configurations:
               '[/**]':
-                # 生产环境建议配置具体域名，开发环境可使用 "*"
-                # 使用 allowedOriginPatterns 而非 allowedOrigins，以支持 allowCredentials=true
                 allowed-origin-patterns: "*"
                 allowed-methods: "*"
                 allowed-headers: "*"
                 allow-credentials: true
                 max-age: 3600
 
-          # 默认过滤器
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
   config:
