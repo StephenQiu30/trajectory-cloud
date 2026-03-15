@@ -427,12 +427,6 @@
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-common-log</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
             <!-- API 模块 -->
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
@@ -456,12 +450,6 @@
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
                 <artifactId>trajectory-api-mail</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-api-log</artifactId>
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 
@@ -500,12 +488,6 @@
             <dependency>
                 <groupId>com.trajectory.cloud</groupId>
                 <artifactId>trajectory-mail-service</artifactId>
-                <version>${trajectory-cloud.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.trajectory.cloud</groupId>
-                <artifactId>trajectory-log-service</artifactId>
                 <version>${trajectory-cloud.version}</version>
             </dependency>
 

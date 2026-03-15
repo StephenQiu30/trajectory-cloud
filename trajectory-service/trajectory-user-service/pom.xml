@@ -47,23 +47,10 @@
         </dependency>
 
 
-        <!-- Stephen Common Log (包含AOP依赖) -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-common-log</artifactId>
-        </dependency>
-
-
         <!-- API Mail -->
         <dependency>
             <groupId>com.trajectory.cloud</groupId>
             <artifactId>trajectory-api-mail</artifactId>
-        </dependency>
-
-        <!-- API Log -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
         </dependency>
 
     </dependencies>

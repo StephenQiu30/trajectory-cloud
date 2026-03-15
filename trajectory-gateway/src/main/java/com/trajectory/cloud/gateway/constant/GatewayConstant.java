@@ -23,16 +23,4 @@ public interface GatewayConstant {
      * 链路追踪 ID 请求头
      */
     String HEADER_TRACE_ID = "X-Trace-Id";
-
-    // ==================== 日志服务 ====================
-
-    /**
-     * 日志服务基础 URL（LoadBalancer 服务名）
-     */
-    String LOG_SERVICE_BASE_URL = "http://trajectory-log-service";
-
-    /**
-     * API 访问日志上报接口路径
-     */
-    String LOG_SERVICE_ACCESS_URI = "/api/log/access/add";
 }

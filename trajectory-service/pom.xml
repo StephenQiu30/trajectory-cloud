@@ -19,7 +19,6 @@
         <module>trajectory-notification-service</module>
         <module>trajectory-file-service</module>
         <module>trajectory-mail-service</module>
-        <module>trajectory-log-service</module>
         <module>trajectory-ai-service</module>
     </modules>
 
@@ -88,12 +87,6 @@
         <dependency>
             <groupId>com.trajectory.cloud</groupId>
             <artifactId>trajectory-common-web</artifactId>
-        </dependency>
-
-        <!-- trajectory-common-log (统一日志 & ELK) -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-common-log</artifactId>
         </dependency>
 
         <!-- Spring Boot Test -->

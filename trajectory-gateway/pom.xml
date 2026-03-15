@@ -72,11 +72,6 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
         </dependency>
-        <!-- trajectory-api-log -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
-        </dependency>
         <!-- trajectory-api-user -->
         <dependency>
             <groupId>com.trajectory.cloud</groupId>

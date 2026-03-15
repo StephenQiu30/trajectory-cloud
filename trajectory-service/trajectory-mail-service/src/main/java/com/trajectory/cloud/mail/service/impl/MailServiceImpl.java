@@ -1,11 +1,8 @@
 package com.trajectory.cloud.mail.service.impl;
 
-import com.trajectory.cloud.api.log.client.LogFeignClient;
-import com.trajectory.cloud.api.log.model.dto.email.EmailRecordAddRequest;
 import com.trajectory.cloud.api.mail.model.dto.EmailAttachment;
 import com.trajectory.cloud.api.mail.model.dto.MailSendCodeRequest;
 import com.trajectory.cloud.api.mail.model.dto.MailSendRequest;
-import com.trajectory.cloud.common.common.BaseResponse;
 import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ThrowUtils;
 import com.trajectory.cloud.common.exception.BusinessException;
@@ -52,10 +49,6 @@ public class MailServiceImpl implements MailService {
     private MqSender mqSender;
 
     @Resource
-    @Lazy
-    private LogFeignClient logFeignClient;
-
-    @Resource
     private EmailTemplateService emailTemplateService;
 
     @Resource
@@ -91,43 +84,10 @@ public class MailServiceImpl implements MailService {
             long duration = System.currentTimeMillis() - startTime;
 
             log.info("简单邮件发送成功，收件人：{}，主题：{}，耗时：{}ms", to, subject, duration);
-
-            // 记录邮件发送成功
-            recordEmail(EmailRecordAddRequest.builder()
-                    .toEmail(to)
-                    .subject(subject)
-                    .content(content)
-                    .isHtml(0)
-                    .status("SUCCESS")
-                    .bizType(bizType)
-                    .bizId(bizId)
-                    .provider("SYSTEM")
-                    .sendTime(new Date())
-                    .build());
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             String causeMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-
             log.error("简单邮件发送失败，收件人：{}，原因：{}，耗时：{}ms", to, causeMsg, duration, e);
-
-            // 记录邮件发送失败，捕获内部异常避免影响原始异常
-            try {
-                recordEmail(EmailRecordAddRequest.builder()
-                        .toEmail(to)
-                        .subject(subject)
-                        .content(content)
-                        .isHtml(0)
-                        .status("FAILED")
-                        .errorMessage(causeMsg)
-                        .bizType(bizType)
-                        .bizId(bizId)
-                        .provider("SYSTEM")
-                        .sendTime(new Date())
-                        .build());
-            } catch (Exception recordEx) {
-                log.error("记录邮件发送失败日志异常", recordEx);
-            }
-
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "邮件发送失败：" + causeMsg);
         }
     }
@@ -186,43 +146,10 @@ public class MailServiceImpl implements MailService {
 
             log.info("HTML 邮件发送成功，收件人：{}，主题：{}，附件数：{}，耗时：{}ms",
                     to, subject, attachments != null ? attachments.size() : 0, duration);
-
-            // 记录邮件发送成功
-            recordEmail(EmailRecordAddRequest.builder()
-                    .toEmail(to)
-                    .subject(subject)
-                    .content(content)
-                    .isHtml(1)
-                    .status("SUCCESS")
-                    .bizType(bizType)
-                    .bizId(bizId)
-                    .provider("SYSTEM")
-                    .sendTime(new Date())
-                    .build());
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             String causeMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-
             log.error("HTML 邮件发送失败，收件人：{}，原因：{}，耗时：{}ms", to, causeMsg, duration, e);
-
-            // 记录邮件发送失败，捕获内部异常避免影响原始异常
-            try {
-                recordEmail(EmailRecordAddRequest.builder()
-                        .toEmail(to)
-                        .subject(subject)
-                        .content(content)
-                        .isHtml(1)
-                        .status("FAILED")
-                        .errorMessage(causeMsg)
-                        .bizType(bizType)
-                        .bizId(bizId)
-                        .provider("SYSTEM")
-                        .sendTime(new Date())
-                        .build());
-            } catch (Exception recordEx) {
-                log.error("记录邮件发送失败日志异常", recordEx);
-            }
-
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "邮件发送失败：" + causeMsg);
         }
     }
@@ -327,102 +254,4 @@ public class MailServiceImpl implements MailService {
         ThrowUtils.throwIf(StringUtils.isAnyBlank(to, subject, content), ErrorCode.PARAMS_ERROR, "邮件核心参数不能为空");
     }
 
-    /**
-     * 记录邮件发送日志
-     * <p>
-     * 通过 Feign 调用日志服务进行数据落地。
-     * </p>
-     *
-     * @param request 邮件记录创建请求
-     */
-    @Override
-    public void recordEmail(EmailRecordAddRequest request) {
-        if (request == null) {
-            return;
-        }
-        try {
-            if (StringUtils.isBlank(request.getMsgId())) {
-                request.setMsgId(UUID.randomUUID().toString());
-            }
-            if (request.getSendTime() == null) {
-                request.setSendTime(new Date());
-            }
-            logFeignClient.addEmailRecord(request);
-        } catch (Exception e) {
-            log.error("[MailServiceImpl] 记录邮件异步日志失败", e);
-        }
-    }
-
-    /**
-     * 预创建邮件记录 (PENDING 状态)
-     * <p>
-     * 适用于分布式事务场景，先确保存储，再进行发送。
-     * </p>
-     *
-     * @param request 邮件记录创建请求
-     * @return 邮件记录唯一 ID
-     */
-    @Override
-    public Long createPendingEmail(EmailRecordAddRequest request) {
-        ThrowUtils.throwIf(request == null || StringUtils.isBlank(request.getToEmail()),
-                ErrorCode.PARAMS_ERROR, "待创建记录参数非法");
-        try {
-            if (StringUtils.isBlank(request.getMsgId())) {
-                request.setMsgId(UUID.randomUUID().toString());
-            }
-            request.setStatus("PENDING");
-            request.setRetryCount(0);
-            request.setMaxRetry(3);
-            request.setSendTime(new Date());
-            BaseResponse<Long> response = logFeignClient.addEmailRecordReturnId(request);
-            return (response != null && response.getData() != null) ? response.getData() : null;
-        } catch (Exception e) {
-            log.error("[MailServiceImpl] 创建待发送记录异常", e);
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "创建预备记录失败");
-        }
-    }
-
-    /**
-     * 成功状态回填
-     *
-     * @param emailRecordId 邮件记录 ID
-     */
-    @Override
-    public void updateEmailStatusToSuccess(Long emailRecordId) {
-        if (emailRecordId == null) {
-            return;
-        }
-        try {
-            EmailRecordAddRequest request = new EmailRecordAddRequest();
-            request.setId(emailRecordId);
-            request.setStatus("SUCCESS");
-            logFeignClient.updateEmailRecordStatus(request);
-            log.info("[MailServiceImpl] 记录状态已更新为 Success, id: {}", emailRecordId);
-        } catch (Exception e) {
-            log.error("[MailServiceImpl] 回填成功状态失败, id: {}", emailRecordId, e);
-        }
-    }
-
-    /**
-     * 失败状态与错误原因回填
-     *
-     * @param emailRecordId 邮件记录 ID
-     * @param errorMessage  错误详情
-     */
-    @Override
-    public void updateEmailStatusToFailed(Long emailRecordId, String errorMessage) {
-        if (emailRecordId == null) {
-            return;
-        }
-        try {
-            EmailRecordAddRequest request = new EmailRecordAddRequest();
-            request.setId(emailRecordId);
-            request.setStatus("FAILED");
-            request.setErrorMessage(errorMessage);
-            logFeignClient.updateEmailRecordStatus(request);
-            log.info("[MailServiceImpl] 记录状态已更新为 Failed, id: {}", emailRecordId);
-        } catch (Exception e) {
-            log.error("[MailServiceImpl] 回填失败状态失败, id: {}", emailRecordId, e);
-        }
-    }
 }

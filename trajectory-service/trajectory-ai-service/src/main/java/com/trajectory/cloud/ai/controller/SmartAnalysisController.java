@@ -16,7 +16,6 @@ import com.trajectory.cloud.common.cache.model.TimeModel;
 import com.trajectory.cloud.common.cache.utils.ratelimit.RateLimitUtils;
 import com.trajectory.cloud.common.common.*;
 import com.trajectory.cloud.common.exception.BusinessException;
-import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
 import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
 import com.trajectory.cloud.common.utils.ExcelUtils;
@@ -66,7 +65,6 @@ public class SmartAnalysisController {
      * @return 结果
      */
     @PostMapping(value = "/gen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OperationLog(module = "BI 管理", action = "智能数据分析 (同步)")
     @Operation(summary = "智能分析 (同步)", description = "上传 Excel 进行智能分析并返回结果")
     public BaseResponse<Chart> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
                                             ChartGenRequest chartGenRequest) {
@@ -171,7 +169,6 @@ public class SmartAnalysisController {
     }
 
     @PostMapping(value = "/gen/async", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @OperationLog(module = "BI 管理", action = "智能数据分析 (异步)")
     @Operation(summary = "智能分析 (异步)", description = "上传 Excel 进行智能分析 (异步处理)")
     public BaseResponse<Long> genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
                                                 ChartGenRequest chartGenRequest) {
@@ -240,7 +237,6 @@ public class SmartAnalysisController {
      * @return 图表分页
      */
     @PostMapping("/my/list/page/vo")
-    @OperationLog(module = "BI 管理", action = "分页获取我的图表列表")
     @Operation(summary = "分页获取我的图表列表")
     public BaseResponse<Page<ChartVO>> listMyChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest) {
         log.info("分页获取我的图表列表 请求: {}", chartQueryRequest);
@@ -267,7 +263,6 @@ public class SmartAnalysisController {
      * @return 图表详情
      */
     @GetMapping("/get/vo")
-    @OperationLog(module = "BI 管理", action = "获取图表详情")
     @Operation(summary = "获取图表详情")
     public BaseResponse<ChartVO> getChartVOById(long id) {
         log.info("获取图表详情 请求, id: {}", id);
@@ -286,7 +281,6 @@ public class SmartAnalysisController {
      * @return 是否成功
      */
     @PostMapping("/delete")
-    @OperationLog(module = "BI 管理", action = "删除图表")
     @Operation(summary = "删除图表")
     public BaseResponse<Boolean> deleteChart(@RequestBody DeleteRequest deleteRequest) {
         log.info("删除图表 请求: {}", deleteRequest);
@@ -316,7 +310,6 @@ public class SmartAnalysisController {
      * @return 是否成功
      */
     @PostMapping("/update")
-    @OperationLog(module = "BI 管理", action = "更新图表")
     @Operation(summary = "更新图表", description = "更新图表名称、目标、类型等基本信息")
     public BaseResponse<Boolean> updateChart(@RequestBody ChartUpdateRequest chartUpdateRequest) {
         log.info("更新图表 请求: {}", chartUpdateRequest);
@@ -366,7 +359,6 @@ public class SmartAnalysisController {
      * @return 图表 VO 分页列表
      */
     @PostMapping("/list/page/vo")
-    @OperationLog(module = "BI 管理", action = "分页获取图表列表")
     @Operation(summary = "分页获取图表列表（封装类）", description = "管理员可查看所有图表，普通用户只能查看自己的图表")
     public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest) {
         log.info("分页获取图表列表 请求: {}", chartQueryRequest);

@@ -1,6 +1,5 @@
 package com.trajectory.cloud.mail.mq.handler;
 
-import com.trajectory.cloud.api.log.model.dto.email.EmailRecordAddRequest;
 import com.trajectory.cloud.common.rabbitmq.consumer.MqHandler;
 import com.trajectory.cloud.common.rabbitmq.consumer.MqIdempotent;
 import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
@@ -12,8 +11,6 @@ import jakarta.mail.AuthenticationFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * 邮件发送处理器
@@ -57,41 +54,9 @@ public class EmailSendHandler implements MqHandler<EmailMessage> {
                 emailMessage.getTo(), emailMessage.getSubject(), msgId);
 
         try {
-            // 同步发送邮件
             mailService.sendMailSync(emailMessage);
-
-            // 记录成功日志
-            mailService.recordEmail(EmailRecordAddRequest.builder()
-                    .msgId(msgId)
-                    .toEmail(emailMessage.getTo())
-                    .subject(emailMessage.getSubject())
-                    .content(emailMessage.getContent())
-                    .isHtml(Boolean.TRUE.equals(emailMessage.getIsHtml()) ? 1 : 0)
-                    .status("SUCCESS")
-                    .bizType(emailMessage.getBizType())
-                    .bizId(emailMessage.getBizId())
-                    .provider("MQ")
-                    .sendTime(new Date())
-                    .build());
-
         } catch (Exception e) {
             log.error("[EmailSendHandler] 邮件发送处理异常, msgId: {}", msgId, e);
-            String errorMsg = getRootCauseMessage(e);
-
-            mailService.recordEmail(EmailRecordAddRequest.builder()
-                    .msgId(msgId)
-                    .toEmail(emailMessage.getTo())
-                    .subject(emailMessage.getSubject())
-                    .content(emailMessage.getContent())
-                    .isHtml(Boolean.TRUE.equals(emailMessage.getIsHtml()) ? 1 : 0)
-                    .status("FAILED")
-                    .errorMessage(errorMsg)
-                    .bizType(emailMessage.getBizType())
-                    .bizId(emailMessage.getBizId())
-                    .provider("MQ")
-                    .sendTime(new Date())
-                    .build());
-
             // 无论是否可以重试，都由 Dispatcher 介入进行处理并 NACK 到 DLX
             if (isNonRetryableException(e)) {
                 log.error("[EmailSendHandler] 遭遇不可重试致命异常，抛出退出");

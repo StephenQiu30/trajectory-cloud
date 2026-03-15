@@ -25,7 +25,6 @@
         <module>trajectory-common-web</module>
         <module>trajectory-common-rabbitmq</module>
         <module>trajectory-common-websocket</module>
-        <module>trajectory-common-log</module>
     </modules>
 
 </project>

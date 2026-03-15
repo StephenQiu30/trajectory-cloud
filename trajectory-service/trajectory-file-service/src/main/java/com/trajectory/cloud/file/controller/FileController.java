@@ -2,7 +2,6 @@ package com.trajectory.cloud.file.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.io.FileUtil;
-import com.trajectory.cloud.api.file.model.dto.FileUploadLogDTO;
 import com.trajectory.cloud.api.file.model.dto.FileUploadRequest;
 import com.trajectory.cloud.api.file.model.enums.FileUploadBizEnum;
 import com.trajectory.cloud.api.file.model.vo.FileUploadVO;
@@ -11,10 +10,8 @@ import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ResultUtils;
 import com.trajectory.cloud.common.common.ThrowUtils;
 import com.trajectory.cloud.common.exception.BusinessException;
-import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.file.config.properties.FileStorageProperties;
 import com.trajectory.cloud.file.service.FileStorageService;
-import com.trajectory.cloud.file.service.FileUploadRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -44,9 +41,6 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @Resource
-    private FileUploadRecordService fileUploadRecordService;
-
-    @Resource
     private FileStorageProperties fileStorageProperties;
 
     /**
@@ -62,7 +56,6 @@ public class FileController {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "文件上传", description = "统一样式的文件上传接口，支持按业务类型进行校验")
-    @OperationLog(module = "文件管理", action = "上传文件")
     public BaseResponse<FileUploadVO> addFile(@RequestPart("file") MultipartFile multipartFile,
                                               FileUploadRequest fileUploadRequest,
                                               HttpServletRequest request) {
@@ -85,35 +78,11 @@ public class FileController {
         String path = String.format("/%s/%s/%s", fileStorageProperties.getPathPrefix(), fileUploadBizEnum.getValue(),
                 loginUserId);
 
-        // 上传文件
         String fileUrl;
-        String clientIp = request.getRemoteAddr();
-        String originalFilename = multipartFile.getOriginalFilename();
-        long fileSize = multipartFile.getSize();
-        String contentType = multipartFile.getContentType();
-
-        FileUploadLogDTO logDTO = FileUploadLogDTO.builder()
-                .userId(loginUserId)
-                .bizType(fileUploadBizEnum.getValue())
-                .fileName(originalFilename)
-                .fileSize(fileSize)
-                .contentType(contentType)
-                .objectKey(path)
-                .clientIp(clientIp)
-                .build();
-
         try {
             fileUrl = fileStorageService.upload(multipartFile, path);
-            // 异步记录文件上传成功日志
-            logDTO.setFileUrl(fileUrl);
-            logDTO.setStatus("SUCCESS");
-            fileUploadRecordService.recordFileUploadAsync(logDTO);
         } catch (Exception e) {
             log.error("文件上传异常, biz: {}, userId: {}", biz, loginUserId, e);
-            // 异步记录文件上传失败日志
-            logDTO.setStatus("FAILED");
-            logDTO.setErrorMessage(e.getMessage());
-            fileUploadRecordService.recordFileUploadAsync(logDTO);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "文件上传失败: " + e.getMessage());
         }
 

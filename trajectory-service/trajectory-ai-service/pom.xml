@@ -25,12 +25,6 @@
             <artifactId>trajectory-api-user</artifactId>
         </dependency>
 
-        <!-- trajectory-api-log -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
-        </dependency>
-
         <!-- LangChain4j -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
@@ -51,12 +45,6 @@
         <dependency>
             <groupId>com.trajectory.cloud</groupId>
             <artifactId>trajectory-common-auth</artifactId>
-        </dependency>
-
-        <!-- Common Log -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-common-log</artifactId>
         </dependency>
 
         <!-- Common MySQL -->

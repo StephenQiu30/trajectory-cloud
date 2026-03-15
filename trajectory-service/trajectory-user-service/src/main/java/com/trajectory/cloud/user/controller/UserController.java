@@ -7,7 +7,6 @@ import com.trajectory.cloud.api.user.model.vo.LoginUserVO;
 import com.trajectory.cloud.api.user.model.vo.UserVO;
 import com.trajectory.cloud.common.common.*;
 import com.trajectory.cloud.common.constants.UserConstant;
-import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.common.rabbitmq.enums.MqBizTypeEnum;
 import com.trajectory.cloud.common.rabbitmq.model.EsSyncMessage;
 import com.trajectory.cloud.common.rabbitmq.utils.MqSender;
@@ -59,7 +58,6 @@ public class UserController {
      */
     @PostMapping("/login/github")
     @Operation(summary = "GitHub 登录", description = "通过 GitHub 授权码进行登录或注册")
-    @OperationLog(module = "用户认证", action = "GitHub登录")
     public BaseResponse<LoginUserVO> userLoginByGitHub(@RequestBody GitHubLoginRequest gitHubLoginRequest,
                                                        HttpServletRequest request) {
         ThrowUtils.throwIf(gitHubLoginRequest == null || StringUtils.isBlank(gitHubLoginRequest.getCode())
@@ -79,7 +77,6 @@ public class UserController {
      */
     @PostMapping("/login/email")
     @Operation(summary = "用户邮箱登录", description = "使用邮箱 and 验证码进行登录")
-    @OperationLog(module = "用户认证", action = "邮箱登录")
     public BaseResponse<LoginUserVO> userLoginByEmail(
             @Validated @RequestBody UserEmailLoginRequest userEmailLoginRequest,
             HttpServletRequest request) {
@@ -98,7 +95,6 @@ public class UserController {
      */
     @PostMapping("/login/email/code")
     @Operation(summary = "发送邮箱验证码", description = "向指定邮箱发送登录或注册所需的验证码")
-    @OperationLog(module = "用户认证", action = "发送邮箱验证码")
     public BaseResponse<Integer> sendEmailLoginCode(@Validated @RequestBody UserEmailCodeSendRequest request,
                                                     HttpServletRequest httpRequest) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
@@ -146,7 +142,6 @@ public class UserController {
      */
     @PostMapping("/logout")
     @Operation(summary = "用户注销", description = "退出当前登录状态")
-    @OperationLog(module = "用户认证", action = "用户注销")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
@@ -179,7 +174,6 @@ public class UserController {
      */
     @PostMapping("/add")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
-    @OperationLog(module = "用户管理", action = "创建用户")
     public BaseResponse<Long> addUser(@Validated @RequestBody UserAddRequest userAddRequest,
                                       HttpServletRequest request) {
         ThrowUtils.throwIf(userAddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -214,7 +208,6 @@ public class UserController {
      * @return /ioBaseResponse<Boolean>
      */
     @PostMapping("/delete")
-    @OperationLog(module = "用户管理", action = "删除用户")
     public BaseResponse<Boolean> deleteUser(@Validated @RequestBody DeleteRequest deleteRequest,
                                             HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -251,7 +244,6 @@ public class UserController {
      * @return BaseResponse<Boolean>
      */
     @PostMapping("/update")
-    @OperationLog(module = "用户管理", action = "更新用户")
     public BaseResponse<Boolean> updateUser(@Validated @RequestBody UserUpdateRequest userUpdateRequest,
                                             HttpServletRequest request) {
         ThrowUtils.throwIf(userUpdateRequest == null || userUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -390,7 +382,6 @@ public class UserController {
      * @return BaseResponse<Boolean>
      */
     @PostMapping("/edit")
-    @OperationLog(module = "用户管理", action = "编辑个人信息")
     public BaseResponse<Boolean> editUser(@Validated @RequestBody UserEditRequest userEditRequest,
                                           HttpServletRequest request) {
         ThrowUtils.throwIf(userEditRequest == null, ErrorCode.PARAMS_ERROR);

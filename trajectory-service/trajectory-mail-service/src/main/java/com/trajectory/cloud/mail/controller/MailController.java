@@ -8,7 +8,6 @@ import com.trajectory.cloud.common.common.BaseResponse;
 import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ResultUtils;
 import com.trajectory.cloud.common.common.ThrowUtils;
-import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.common.rabbitmq.model.EmailMessage;
 import com.trajectory.cloud.common.utils.IpUtils;
 import com.trajectory.cloud.mail.service.EmailCodeService;
@@ -53,7 +52,6 @@ public class MailController {
      * @return 成功标志
      */
     @PostMapping("/send/sync")
-    @OperationLog(module = "邮件管理", action = "同步发送邮件")
     @Operation(summary = "同步发送邮件", description = "阻塞式发送简单或 HTML 邮件")
     public BaseResponse<Boolean> doSendMailSync(@RequestBody MailSendRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
@@ -79,7 +77,6 @@ public class MailController {
      * @return 投递结果
      */
     @PostMapping("/send/async")
-    @OperationLog(module = "邮件管理", action = "异步发送邮件")
     @Operation(summary = "异步发送邮件", description = "基于 MQ 分离发送流程，提升接口吞吐量")
     public BaseResponse<Boolean> doSendMailAsync(@RequestBody MailSendRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
@@ -102,7 +99,6 @@ public class MailController {
      * @return 是否成功触发
      */
     @PostMapping("/send/verification-code")
-    @OperationLog(module = "邮件管理", action = "快速发送验证码邮件")
     @Operation(summary = "快速发送验证码邮件", description = "使用默认模板发送纯验证码通知")
     public BaseResponse<Boolean> doSendVerificationCode(@RequestBody MailSendCodeRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
@@ -121,7 +117,6 @@ public class MailController {
      * @return 验证码过期告知
      */
     @PostMapping("/code/add")
-    @OperationLog(module = "邮件管理", action = "申请验证码")
     @Operation(summary = "申请邮箱验证码", description = "业务级验证码申请接口，集成限流与防爆破逻辑")
     public BaseResponse<EmailCodeVO> addEmailCode(@RequestBody EmailCodeRequest request,
                                                   HttpServletRequest httpRequest) {
@@ -139,7 +134,6 @@ public class MailController {
      * @return 校验结果
      */
     @PostMapping("/code/verify")
-    @OperationLog(module = "邮件管理", action = "校验验证码")
     @Operation(summary = "校验邮箱验证码", description = "验证用户输入的验证码是否与缓存一致且未过期")
     public BaseResponse<Boolean> verifyEmailCode(@RequestBody EmailCodeRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);

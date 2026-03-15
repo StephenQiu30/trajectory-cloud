@@ -27,16 +27,6 @@
             <artifactId>trajectory-api-file</artifactId>
         </dependency>
 
-        <!-- 日志模块 -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-common-log</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
-        </dependency>
-
         <!-- trajectory-common-auth -->
         <dependency>
             <groupId>com.trajectory.cloud</groupId>

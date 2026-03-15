@@ -64,16 +64,6 @@
             <artifactId>trajectory-api-ai</artifactId>
         </dependency>
 
-        <!-- 日志模块 -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-common-log</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
-        </dependency>
-
         <!-- MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>

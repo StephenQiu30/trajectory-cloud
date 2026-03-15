@@ -8,7 +8,6 @@ import com.trajectory.cloud.api.notification.model.vo.NotificationVO;
 import com.trajectory.cloud.common.auth.utils.SecurityUtils;
 import com.trajectory.cloud.common.common.*;
 import com.trajectory.cloud.common.constants.UserConstant;
-import com.trajectory.cloud.common.log.annotation.OperationLog;
 import com.trajectory.cloud.notification.convert.NotificationConvert;
 import com.trajectory.cloud.notification.model.entity.Notification;
 import com.trajectory.cloud.notification.service.NotificationService;
@@ -51,7 +50,6 @@ public class NotificationController {
      * @return 成功的通知 ID 列表
      */
     @PostMapping("/add")
-    @OperationLog(module = "通知管理", action = "智能创建通知")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
     @Operation(summary = "创建通知", description = "管理员向特定目标发送通知")
     public BaseResponse<List<Long>> addNotification(@RequestBody NotificationAddRequest notificationAddRequest) {
@@ -67,7 +65,6 @@ public class NotificationController {
      * @return 是否删除成功
      */
     @PostMapping("/delete")
-    @OperationLog(module = "通知管理", action = "删除通知")
     @Operation(summary = "删除通知", description = "删除指定通知，仅本人或管理员可操作")
     public BaseResponse<Boolean> deleteNotification(@RequestBody DeleteRequest deleteRequest) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -90,7 +87,6 @@ public class NotificationController {
      * @return 是否成功
      */
     @PostMapping("/update")
-    @OperationLog(module = "通知管理", action = "更新通知")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
     @Operation(summary = "更新通知", description = "更新指定通知，仅管理员可用")
     public BaseResponse<Boolean> updateNotification(@RequestBody NotificationUpdateRequest notificationUpdateRequest) {
@@ -206,7 +202,6 @@ public class NotificationController {
      * @return 是否成功
      */
     @PostMapping("/read")
-    @OperationLog(module = "通知管理", action = "标记已读")
     @Operation(summary = "标记已读", description = "将指定通知标记为已读状态")
     public BaseResponse<Boolean> markNotificationRead(@RequestBody NotificationReadRequest notificationReadRequest) {
         ThrowUtils.throwIf(notificationReadRequest == null || notificationReadRequest.getId() == null
@@ -222,7 +217,6 @@ public class NotificationController {
      * @return 是否成功
      */
     @PostMapping("/read/all")
-    @OperationLog(module = "通知管理", action = "全部标记已读")
     @Operation(summary = "全部标记已读", description = "将当前用户的所有未读通知标记为已读")
     public BaseResponse<Boolean> markAllNotificationRead() {
         boolean result = notificationService.markAllRead(SecurityUtils.getLoginUserId());
@@ -248,7 +242,6 @@ public class NotificationController {
      * @return 删除成功数量
      */
     @PostMapping("/batch/delete")
-    @OperationLog(module = "通知管理", action = "批量删除通知")
     @Operation(summary = "批量删除通知", description = "批量删除选中的通知")
     public BaseResponse<Integer> batchDeleteNotification(
             @RequestBody NotificationBatchDeleteRequest batchDeleteRequest) {
@@ -266,7 +259,6 @@ public class NotificationController {
      * @return 标记成功数量
      */
     @PostMapping("/batch/read")
-    @OperationLog(module = "通知管理", action = "批量标记已读")
     @Operation(summary = "批量标记已读", description = "批量将选中通知标记为已读")
     public BaseResponse<Integer> batchMarkNotificationRead(@RequestBody NotificationBatchReadRequest batchReadRequest) {
         ThrowUtils.throwIf(batchReadRequest == null || CollUtil.isEmpty(batchReadRequest.getIds()),

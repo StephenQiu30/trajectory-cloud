@@ -5,10 +5,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.trajectory.cloud.api.log.client.LogFeignClient;
-import com.trajectory.cloud.api.log.model.dto.login.UserLoginLogAddRequest;
-import com.trajectory.cloud.api.log.model.enums.LoginStatusEnum;
-import com.trajectory.cloud.api.log.model.enums.LoginTypeEnum;
 import com.trajectory.cloud.api.user.model.dto.UserEmailLoginRequest;
 import com.trajectory.cloud.api.user.model.dto.UserQueryRequest;
 import com.trajectory.cloud.api.user.model.enums.EmailVerifiedEnum;
@@ -30,7 +26,6 @@ import com.trajectory.cloud.common.utils.IpUtils;
 import com.trajectory.cloud.common.utils.RegexUtils;
 import com.trajectory.cloud.user.convert.UserConvert;
 import com.trajectory.cloud.user.mapper.UserMapper;
-import com.trajectory.cloud.user.model.dto.UserLoginLogRecordRequest;
 import com.trajectory.cloud.user.model.entity.User;
 import com.trajectory.cloud.user.service.GitHubService;
 import com.trajectory.cloud.user.service.UserEmailService;
@@ -65,9 +60,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private UserEmailService userEmailService;
-
-    @Resource
-    private LogFeignClient logFeignClient;
 
     @Resource
     private MqSender mqSender;
@@ -353,13 +345,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
             StpUtil.login(finalUser.getId());
 
-            UserLoginLogRecordRequest logRecordRequest = new UserLoginLogRecordRequest();
-            logRecordRequest.setUser(finalUser);
-            logRecordRequest.setLoginType(LoginTypeEnum.GITHUB);
-            logRecordRequest.setAccount(gitHubUserVO.getLogin());
-            logRecordRequest.setHttpRequest(request);
-            recordLoginLogAsync(logRecordRequest);
-
             LoginUserVO loginUserVO = getLoginUserVO(finalUser);
             UserVO userVO = UserConvert.objToVo(finalUser);
             StpUtil.getSession().set(UserConstant.USER_LOGIN_STATE, userVO);
@@ -420,13 +405,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
             userEmailService.deleteEmailCode(email);
 
-            UserLoginLogRecordRequest logRecordRequest = new UserLoginLogRecordRequest();
-            logRecordRequest.setUser(user);
-            logRecordRequest.setLoginType(LoginTypeEnum.EMAIL);
-            logRecordRequest.setAccount(email);
-            logRecordRequest.setHttpRequest(request);
-            recordLoginLogAsync(logRecordRequest);
-
             LoginUserVO loginUserVO = getLoginUserVO(user);
             UserVO userVO = UserConvert.objToVo(user);
             StpUtil.getSession().set(UserConstant.USER_LOGIN_STATE, userVO);
@@ -434,33 +412,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }, () -> {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "登录人数过多，请稍后再试");
         });
-    }
-
-    /**
-     * 异步记录登录日志
-     *
-     * @param logRecordRequest 登录日志记录请求
-     */
-    @Async
-    public void recordLoginLogAsync(UserLoginLogRecordRequest logRecordRequest) {
-        try {
-            UserLoginLogAddRequest request = new UserLoginLogAddRequest();
-            request.setUserId(logRecordRequest.getUser().getId());
-            request.setAccount(logRecordRequest.getAccount());
-            request.setLoginType(logRecordRequest.getLoginType().getValue());
-            request.setStatus(LoginStatusEnum.SUCCESS.getValue());
-
-            // 提取客户端信息
-            HttpServletRequest httpRequest = logRecordRequest.getHttpRequest();
-            if (httpRequest != null) {
-                request.setClientIp(IpUtils.getClientIp(httpRequest));
-                request.setUserAgent(httpRequest.getHeader("User-Agent"));
-            }
-
-            logFeignClient.addUserLoginLog(request);
-        } catch (Exception e) {
-            log.error("记录登录日志失败", e);
-        }
     }
 
     @Override

@@ -35,11 +35,6 @@
         </dependency>
 
         <!-- API Log -->
-        <dependency>
-            <groupId>com.trajectory.cloud</groupId>
-            <artifactId>trajectory-api-log</artifactId>
-        </dependency>
-
         <!-- trajectory-common-auth -->
         <dependency>
             <groupId>com.trajectory.cloud</groupId>
