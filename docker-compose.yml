@@ -68,11 +68,11 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=128m -XX:MaxRAMPercentage=60.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=256m -XX:MaxRAMPercentage=75.0 -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
-          memory: 448M
+          memory: 512M
     networks:
       - trajectory-network
 
@@ -136,6 +136,7 @@ services:
     restart: always
     ports:
       - "${NOTIFICATION_SERVICE_PORT_EXTERNAL}:8082"
+      - "9091:9091"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}

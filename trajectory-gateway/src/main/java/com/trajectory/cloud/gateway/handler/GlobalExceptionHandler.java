@@ -6,6 +6,8 @@ import com.trajectory.cloud.common.common.ErrorCode;
 import com.trajectory.cloud.common.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -27,11 +29,16 @@ import java.util.concurrent.TimeoutException;
  * 统一处理网关层面的异常，将异常信息转换为标准 JSON 响应格式。
  * 覆盖常见场景：HTTP 状态异常、服务不可达、请求超时等。
  * </p>
+ * <p>
+ * 通过 {@code @Order(Ordered.HIGHEST_PRECEDENCE)} 确保优先级高于
+ * Spring 默认的 {@code DefaultErrorWebExceptionHandler}，避免返回 HTML 错误页。
+ * </p>
  *
  * @author StephenQiu30
  */
 @Slf4j
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
 
     @Override

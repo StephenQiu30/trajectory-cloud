@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 日志全局过滤器
@@ -23,9 +26,9 @@ import java.util.UUID;
  * 记录每个请求的起止时间、状态码、客户端IP 等信息，
  * 并在响应完成后异步上报到日志服务（trajectory-log-service）。
  * </p>
- *
  * <p>
- * 执行顺序: 最先执行（order = -200），早于认证过滤器
+ * 执行顺序: order = -200（在 HeaderSanitize 之后、Auth 之前），
+ * 用于在请求最早阶段记录起始时间并注入 traceId。
  * </p>
  *
  * @author StephenQiu30
@@ -35,6 +38,19 @@ import java.util.UUID;
 public class GlobalLogFilter implements GlobalFilter, Ordered {
 
     private final WebClient logWebClient;
+
+    /**
+     * 不需要记录日志的路径前缀
+     */
+    private static final Set<String> SKIP_LOG_PATHS = Set.of(
+            "/actuator"
+    );
+
+    /**
+     * 日志上报失败限频：每 60 秒最多输出一次错误日志
+     */
+    private final AtomicLong lastErrorLogTime = new AtomicLong(0);
+    private static final long ERROR_LOG_INTERVAL_MS = 60_000;
 
     public GlobalLogFilter(WebClient.Builder webClientBuilder) {
         this.logWebClient = webClientBuilder
@@ -46,6 +62,17 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
+        // 跳过 OPTIONS 预检请求（CORS），不记录日志
+        if (HttpMethod.OPTIONS.equals(request.getMethod())) {
+            return chain.filter(exchange);
+        }
+
+        // 跳过不需要记录日志的路径
+        String path = request.getPath().value();
+        if (shouldSkipLog(path)) {
+            return chain.filter(exchange);
+        }
+
         // 记录请求开始时间
         long startTime = System.currentTimeMillis();
 
@@ -53,7 +80,6 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
         String traceId = UUID.randomUUID().toString();
 
         // 提取请求基本信息
-        final String path = request.getPath().value();
         final String method = request.getMethod() != null ? request.getMethod().name() : "UNKNOWN";
         final String query = request.getURI().getQuery();
         final String clientIp = resolveClientIp(request);
@@ -87,6 +113,13 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
                     submitAccessLog(traceId, path, method, query,
                             statusCode, (int) latencyMs, clientIp, userAgent, referer, loginUserId);
                 }));
+    }
+
+    /**
+     * 判断是否跳过日志记录
+     */
+    private boolean shouldSkipLog(String path) {
+        return SKIP_LOG_PATHS.stream().anyMatch(path::startsWith);
     }
 
     /**
@@ -134,6 +167,9 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
 
     /**
      * 异步上报 API 访问日志到日志服务（fire-and-forget，不阻塞主链路）
+     * <p>
+     * 上报失败时进行限频日志输出，避免日志服务不可用时产生日志爆炸。
+     * </p>
      */
     private void submitAccessLog(String traceId, String path, String method,
                                  String query, int status, int latencyMs,
@@ -162,18 +198,30 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
                     .retrieve()
                     .bodyToMono(Void.class)
                     .onErrorResume(e -> {
-                        log.error("[Log] 上报访问日志失败: {}", e.getMessage());
+                        logErrorThrottled("[Log] 上报访问日志失败: {}", e.getMessage());
                         return Mono.empty();
                     })
                     .subscribe();
         } catch (Exception e) {
-            log.error("[Log] 构建访问日志请求失败", e);
+            logErrorThrottled("[Log] 构建访问日志请求失败: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 限频错误日志输出，避免日志服务不可用时产生大量重复错误日志
+     */
+    private void logErrorThrottled(String format, String message) {
+        long now = System.currentTimeMillis();
+        long last = lastErrorLogTime.get();
+        if (now - last > ERROR_LOG_INTERVAL_MS && lastErrorLogTime.compareAndSet(last, now)) {
+            log.error(format, message);
         }
     }
 
     @Override
     public int getOrder() {
-        // 最先执行的过滤器之一，在认证之前记录请求开始
+        // 在 GlobalHeaderSanitizeFilter (HIGHEST_PRECEDENCE) 之后，GlobalAuthFilter (-98) 之前
         return -200;
     }
 }
+

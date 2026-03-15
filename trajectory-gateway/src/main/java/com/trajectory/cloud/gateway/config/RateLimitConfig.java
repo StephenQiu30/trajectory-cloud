@@ -1,5 +1,6 @@
 package com.trajectory.cloud.gateway.config;
 
+import com.trajectory.cloud.gateway.constant.GatewayConstant;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,14 +40,18 @@ public class RateLimitConfig {
     /**
      * 用户 ID 限流 Key 解析器
      * <p>
-     * 从请求头中获取 userId，未登录用户统一使用 "anonymous" 限流
+     * 从 Exchange 属性中获取 userId（由 {@link com.trajectory.cloud.gateway.filter.GlobalAuthFilter} 写入），
+     * 未登录用户统一使用 "anonymous" 限流。
+     * </p>
+     * <p>
+     * 注意：不从请求头获取 userId，因为限流过滤器在 AuthFilter 注入请求头之前执行。
      * </p>
      */
     @Bean
     public KeyResolver userKeyResolver() {
         return exchange -> {
-            String userId = exchange.getRequest().getHeaders().getFirst("userId");
-            return Mono.just(userId != null ? userId : "anonymous");
+            Object userId = exchange.getAttribute(GatewayConstant.ATTR_LOGIN_USER_ID);
+            return Mono.just(userId != null ? userId.toString() : "anonymous");
         };
     }
 
@@ -58,3 +63,4 @@ public class RateLimitConfig {
         return exchange -> Mono.just(exchange.getRequest().getPath().value());
     }
 }
+
