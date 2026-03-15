@@ -4,6 +4,9 @@ import java.util.regex.Pattern;
 
 /**
  * 正则表达式工具类
+ * <p>
+ * 常用的正则校验逻辑 (邮箱、手机号、密码强度等) 统一维护。
+ * 避免在业务代码中散落硬编码的正则表达式。
  *
  * @author StephenQiu30
  */

@@ -38,35 +38,50 @@ graph TD
 
 ### 服务模块说明
 
-| 模块名称                              | 功能描述                  | 端口   |
-|:----------------------------------|:----------------------|:-----|
-| `trajectory-gateway`              | API 网关：路由转发、鉴权、限流     | 8080 |
-| `trajectory-user-service`         | 用户服务：账号、权限、多端登录       | 8081 |
-| ``                                | 帖子服务：内容、互动、数据统计       | 8082 |
-| `trajectory-notification-service` | 通知服务：系统消息、实时推送        | 8083 |
-| `trajectory-search-service`       | 搜索服务：基于 ES 的聚合检索      | 8084 |
-| `trajectory-file-service`         | 文件服务：对象存储 (COS/MinIO) | 8085 |
-| `trajectory-log-service`          | 日志服务：全链路日志采集与存储       | 8086 |
-| `trajectory-mail-service`         | 邮件服务：验证码、告警发送         | 8087 |
-| `trajectory-ai-service`           | AI 服务：智能数据分析与可视化处理    | 8089 |
+| 模块名称 | 功能描述 | 端口 | 状态 |
+| :--- | :--- | :--- | :--- |
+| `trajectory-gateway` | **统一网关**：负责路由转发、鉴权、限流与全链路日志采样 | 8080 | ✅ |
+| `trajectory-user-service` | **用户中心**：支持 GitHub、邮箱验证码登录及 RBAC 权限管理 | 8081 | ✅ |
+| `trajectory-notification-service` | **通知中心**：系统通知分发、基于 MQ/WebSocket 的实时消息推送 | 8082 | ✅ |
+| `trajectory-ai-service` | **智能分析**：集成 LangChain4j，提供 Excel/数据智能分析与图表生成 | 8083 | ✅ |
 
-## 🎯 技术栈
+---
 
-| 领域             | 核心技术                 | 版本           |
-|:---------------|:---------------------|:-------------|
-| Java 运行环境      | JDK                  | 21           |
-| AI 框架          | LangChain4j          | 0.36.2       |
-| 核心框架           | Spring Boot          | 3.5.9        |
-| 微服务治理          | Spring Cloud Alibaba | 2023.0.3.2   |
-| 服务网关           | Spring Cloud Gateway | 5.0.1        |
-| 数据库            | MySQL                | 8.0          |
-| 持久层框架          | MyBatis-Plus         | 3.5.12       |
-| 缓存/分布式锁        | Redis & Redisson     | 7.4 / 3.48.0 |
-| 消息队列           | RabbitMQ             | 4.2.3        |
-| 搜索引擎           | Elasticsearch        | 9.3.0        |
-| 通讯框架           | Netty                | 4.2.5.Final  |
-| 认证鉴权           | Sa-Token             | 1.44.0       |
-| 监控配置: Actuator | Spring Boot Actuator | 3.5.9        |
+## 🚀 核心特性
+
+- 🛠 **工程底座**：基于 Java 21 虚拟线程 (探索中) 与 Spring Boot 3.5.x，享受最新 JVM 性能红利。
+- 🤖 **AIGC 深度集成**：内置大模型调用封装，支持对话分析、数据提取与 Echarts 图表配置自动生成。
+- 🔑 **安全认证**：集成 Sa-Token 框架，实现微服务下的分布式会话共享与跨服务鉴权。
+- 📊 **数据驱动**：集成 EasyExcel 提供高性能表格解析，利用 RabbitMQ 完成耗时分析任务的异步削峰治理。
+- 📜 **精益文档**：全量代码覆盖 JavaDoc 与 Swagger (Knife4j) 接口文档，所见即所得。
+
+## 📖 接口指南 (API Documentation)
+
+项目集成 **Knife4j**，启动后可通过以下地址访问各微服务文档：
+
+- **网关聚合文档**: [http://localhost:8080/doc.html](http://localhost:8080/doc.html)
+- **用户服务**: `http://localhost:8081/doc.html`
+- **通知服务**: `http://localhost:8082/doc.html`
+- **AI 服务**: `http://localhost:8083/doc.html`
+
+> [!TIP]
+> 推荐通过 **网关端口 (8080)** 统一查看聚合后的 Open API 文档。
+
+## 🎯 技术栈详情
+
+| 领域 | 核心技术 | 版本 |
+| :--- | :--- | :--- |
+| **Java 运行环境** | JDK | 21 |
+| **AI 框架** | LangChain4j | 0.36.2 |
+| **核心框架** | Spring Boot | 3.5.9 |
+| **微服务治理** | Spring Cloud Alibaba | 2023.0.3.2 |
+| **服务网关** | Spring Cloud Gateway | 5.0.1 |
+| **数据库** | MySQL / MyBatis-Plus | 8.4 / 3.5.12 |
+| **缓存/分布式锁** | Redis / Redisson | 7.4 / 3.48.0 |
+| **消息队列** | RabbitMQ | 4.x |
+| **搜索引擎** | Elasticsearch | 9.3.0 |
+| **认证鉴权** | Sa-Token | 1.44.0 |
+| **文档工具** | Knife4j | 4.5.0 |
 
 ## 📮 消息队列 use 指南
 

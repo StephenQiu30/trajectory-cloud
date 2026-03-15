@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 /**
  * IP 工具类
+ * <p>
+ * 提供获取客户端真实 IP、解析 IP 为地理位置等功能。
+ * 适配常见的反向代理 (如 Nginx、CDN) 请求头。
  *
  * @author StephenQiu30
  */

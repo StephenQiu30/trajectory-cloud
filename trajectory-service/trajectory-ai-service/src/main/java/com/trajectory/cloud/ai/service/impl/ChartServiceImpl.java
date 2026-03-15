@@ -26,6 +26,12 @@ import java.util.stream.Collectors;
 @Service
 public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements ChartService {
 
+    /**
+     * 构造图表分页查询封装类
+     *
+     * @param chartQueryRequest 图表查询请求参数
+     * @return MyBatis-Plus 的 LambdaQueryWrapper 封装对象
+     */
     @Override
     public LambdaQueryWrapper<Chart> getQueryWrapper(ChartQueryRequest chartQueryRequest) {
         if (chartQueryRequest == null) {
@@ -43,11 +49,17 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         queryWrapper.like(StringUtils.isNotBlank(goal), Chart::getGoal, goal);
         queryWrapper.eq(StringUtils.isNotBlank(chartType), Chart::getChartType, chartType);
         queryWrapper.eq(userId != null, Chart::getUserId, userId);
-        queryWrapper.eq(Chart::getIsDelete, 0);
+        queryWrapper.eq(Chart::getIsDelete, 0); // 仅查询未逻辑删除的数据
         queryWrapper.orderByDesc(Chart::getCreateTime);
         return queryWrapper;
     }
 
+    /**
+     * 获取图表视图对象 (VO)
+     *
+     * @param chart 图表实体
+     * @return 脱敏后的视图对象
+     */
     @Override
     public ChartVO getChartVO(Chart chart) {
         if (chart == null) {
@@ -58,6 +70,12 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         return chartVO;
     }
 
+    /**
+     * 将图表实体分页对象转换为视图对象分页对象
+     *
+     * @param chartPage 原生的图表实体分页对象
+     * @return 转换后的视图对象分页对象
+     */
     @Override
     public Page<ChartVO> getChartVOPage(Page<Chart> chartPage) {
         List<Chart> chartList = chartPage.getRecords();

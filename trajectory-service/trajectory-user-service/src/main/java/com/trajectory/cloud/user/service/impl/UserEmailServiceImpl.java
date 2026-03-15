@@ -26,10 +26,12 @@ public class UserEmailServiceImpl implements UserEmailService {
 
     /**
      * 发送邮箱验证码
+     * <p>
+     * 校验邮箱合法性，并调用底层 EmailCodeService 执行发送逻辑。
      *
-     * @param email    邮箱
-     * @param clientIp 客户端 IP
-     * @return 验证码有效期（秒）
+     * @param email    目标邮箱地址
+     * @param clientIp 客户端 IP，用于频率限制校验
+     * @return 验证码有效期 (秒)，用于前端倒计时显示
      */
     @Override
     public Integer sendEmailCode(String email, String clientIp) {
@@ -49,10 +51,12 @@ public class UserEmailServiceImpl implements UserEmailService {
 
     /**
      * 验证邮箱验证码
+     * <p>
+     * 在登录或关键操作前，核对用户输入的验证码是否正确及是否过期。
      *
-     * @param email 邮箱
-     * @param code  验证码
-     * @return {@link boolean}
+     * @param email 待验证邮箱地址
+     * @param code  用户填写的验证码
+     * @return 验证通过返回 true，否则返回 false
      */
     @Override
     public boolean verifyEmailCode(String email, String code) {
@@ -68,10 +72,12 @@ public class UserEmailServiceImpl implements UserEmailService {
     }
 
     /**
-     * 删除邮箱验证码
+     * 从缓存中清除指定邮箱的验证码
+     * <p>
+     * 通常在业务流程结束后执行，防止验证码被非法复用。
      *
-     * @param email 邮箱
-     * @return {@link boolean}
+     * @param email 目标邮箱地址
+     * @return 是否清除成功 (目前逻辑固定返回 true)
      */
     @Override
     public boolean deleteEmailCode(String email) {

@@ -63,9 +63,11 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
     /**
      * 校验通知合法性
+     * <p>
+     * 确保标题和内容非空且长度符合数据库字段约束。
      *
-     * @param notification 通知正文
-     * @param add          是否为新增
+     * @param notification 通知实体
+     * @param add          是否为新增操作 (新增时必须校验标题和内容)
      */
     @Override
     public void validNotification(Notification notification, boolean add) {
@@ -88,10 +90,10 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /**
-     * 构建 MyBatis-Plus 查询条件
+     * 构建 MyBatis-Plus 分页查询条件
      *
-     * @param notificationQueryRequest 查询请求包
-     * @return LambdaQueryWrapper
+     * @param notificationQueryRequest 包含多种筛选条件的查询请求对象
+     * @return MyBatis-Plus 的 LambdaQueryWrapper 封装对象
      */
     @Override
     public LambdaQueryWrapper<Notification> getQueryWrapper(NotificationQueryRequest notificationQueryRequest) {
@@ -110,7 +112,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         String sortField = notificationQueryRequest.getSortField();
         String sortOrder = notificationQueryRequest.getSortOrder();
 
-        // 精确匹配
+        // 1. 精确匹配核心字段
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), Notification::getId, id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), Notification::getUserId, userId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(type), Notification::getType, type);
@@ -118,26 +120,28 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         queryWrapper.eq(ObjectUtils.isNotEmpty(isRead), Notification::getIsRead, isRead);
         queryWrapper.eq(ObjectUtils.isNotEmpty(status), Notification::getStatus, status);
 
-        // 模糊搜索：匹配标题或内容
+        // 2. 标题/内容模糊搜索
         if (StringUtils.isNotBlank(searchText)) {
             queryWrapper.and(qw -> qw.like(Notification::getTitle, searchText)
                     .or()
                     .like(Notification::getContent, searchText));
         }
 
-        // 排序逻辑
+        // 3. 结果排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
-                sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
+                CommonConstant.SORT_ORDER_ASC.equals(sortOrder),
                 Notification::getCreateTime);
 
         return queryWrapper;
     }
 
     /**
-     * 获取通知脱敏视图对象（单条）
+     * 获取单条通知记录的脱敏视图对象 (VO)
+     * <p>
+     * 通过 Feign 调用关联查询发送者/用户的信息。
      *
-     * @param notification 数据库记录
-     * @return NotificationVO
+     * @param notification 通知实体记录
+     * @return 填充了用户详细信息的 NotificationVO
      */
     @Override
     public NotificationVO getNotificationVO(Notification notification) {
@@ -145,6 +149,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             return null;
         }
         NotificationVO notificationVO = NotificationConvert.objToVo(notification);
+        // 单条数据填充逻辑
         if (notificationVO != null && notification.getUserId() != null && notification.getUserId() > 0) {
             try {
                 BaseResponse<UserVO> userResponse = userFeignClient.getUserVOById(notification.getUserId());
@@ -152,7 +157,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
                     notificationVO.setUserVO(userResponse.getData());
                 }
             } catch (Exception e) {
-                log.error("[NotificationServiceImpl] 获取单条通知用户信息失败", e);
+                log.error("[NotificationServiceImpl] 获取单条通知用户信息失败, userId: {}", notification.getUserId(), e);
             }
         }
         return notificationVO;
@@ -162,6 +167,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
      * 分页转换通知视图对象组
      * <p>
      * MVP 简化版：采用批量串行查询，降低代码复杂度，确保系统稳健。
+     * 1. 提取所有非重复的用户 ID
+     * 2. 通过 Feign 批量查询用户信息
+     * 3. 填充视图对象并返回
      * </p>
      *
      * @param notificationPage 原始结果页
@@ -176,7 +184,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             return notificationVOPage;
         }
 
-        // 批量提取不重复的用户 ID，排除全员通知(0)
+        // 1. 批量提取不重复的用户 ID，排除全员通知(0)
         Set<Long> userIdSet = notificationList.stream()
                 .map(Notification::getUserId)
                 .filter(id -> id != null && id > 0)
@@ -185,6 +193,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         Map<Long, UserVO> userVOMap = new HashMap<>();
         if (CollUtil.isNotEmpty(userIdSet)) {
             try {
+                // 批量 Feign 调用
                 BaseResponse<List<UserVO>> userResponse = userFeignClient.getUserVOByIds(new ArrayList<>(userIdSet));
                 if (userResponse != null && CollUtil.isNotEmpty(userResponse.getData())) {
                     userVOMap = userResponse.getData().stream()
@@ -195,7 +204,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             }
         }
 
-        // 属性拷贝并填充用户信息
+        // 2. 属性拷贝并填充用户信息
         final Map<Long, UserVO> finalUserVOMap = userVOMap;
         List<NotificationVO> notificationVOList = notificationList.stream().map(notification -> {
             NotificationVO notificationVO = NotificationConvert.objToVo(notification);
@@ -210,32 +219,37 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /**
-     * 基础通知创建 (点对点)
+     * 基础通知创建 (点对点直发)
      * <p>
-     * 流程包含：参数校验、幂等 ID 生成、落地存储、以及事务提交后的异步 MQ 推送。
-     * </p>
+     * 业务流程：
+     * 1. 校验正文内容
+     * 2. 处理业务主键 (bizId) 幂等，防止重复发送
+     * 3. 持久化到数据库
+     * 4. 注册事务钩子，确保数据可见后才通过 MQ 进行各端的实时推送
      *
-     * @param notification 实体
-     * @return 通知 ID
+     * @param notification 通知实体记录
+     * @return 数据库生成的 ID
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long addNotification(Notification notification) {
         validNotification(notification, true);
 
-        // 默认幂等 ID 处理
+        // 1. 幂等性处理：若业务端未指定 bizId，则自动生成一个
         String bizId = notification.getBizId();
         if (StringUtils.isBlank(bizId)) {
             bizId = "manual_" + IdUtil.fastSimpleUUID();
             notification.setBizId(bizId);
         }
 
+        // 2. 检查幂等性，避免脏数据
         Long userId = notification.getUserId();
         Notification existing = this.lambdaQuery()
                 .eq(Notification::getBizId, bizId)
                 .eq(Notification::getUserId, userId)
                 .one();
         if (existing != null) {
+            log.info("[NotificationServiceImpl] 命中幂等过滤, bizId: {}", bizId);
             return existing.getId();
         }
 
@@ -247,7 +261,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             boolean result = this.save(notification);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         } catch (DuplicateKeyException e) {
-            // 数据库二级防御
+            // 二级防御：并发下可能因 bizId+userId 唯一索引冲突
             Notification again = this.lambdaQuery()
                     .eq(Notification::getBizId, bizId)
                     .eq(Notification::getUserId, userId)
@@ -258,7 +272,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             throw e;
         }
 
-        // 发送推送逻辑（异步且保证事务一致性）
+        // 3. 注册实时推送逻辑 (解耦推送与数据库事务)
         registerPushHook(notification);
 
         return notification.getId();
@@ -293,13 +307,16 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /**
-     * 管理员智能创建入口
+     * 管理员智能分发通知
      * <p>
-     * 处理 target 维度（全员、指定列表、角色组）的分发，采用 {@code saveBatch} 提升分发效率。
-     * </p>
+     * 支持多种分发模式：
+     * 1. <b>全员广播</b>：target = ALL
+     * 2. <b>角色组发</b>：target = ROLE:admin
+     * 3. <b>指定用户</b>：target = 1,2,3...
+     * 使用 {@code saveBatch} 实现高性能落地，并集成事务推送钩子。
      *
-     * @param request 请求包
-     * @return ID 序列
+     * @param request 包含分发目标和内容的请求包
+     * @return 已生成的所有通知 ID 序列
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -310,23 +327,25 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         String target = request.getTarget();
         String content = request.getContent();
         if (StringUtils.isAnyBlank(target, content)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "通知目标或内容缺失");
         }
 
+        // 默认标题处理
         String finalTitle = StringUtils.isNotBlank(request.getTitle()) ? request.getTitle()
                 : (content.length() > 20 ? content.substring(0, 20) + "..." : content);
 
         List<Long> targetUserIds = new ArrayList<>();
         boolean isBroadcast = false;
 
-        // 解析分发目标
+        // 1. 解析目标群体
         if (NotificationTargetTypeEnum.ALL.getValue().equalsIgnoreCase(target)) {
             isBroadcast = true;
         } else if (target.startsWith(NotificationTargetTypeEnum.ROLE.getValue())) {
+            // 角色维度通过 Feign 获取符合条件的用户列表
             String role = target.substring(NotificationTargetTypeEnum.ROLE.getValue().length());
             UserQueryRequest userQueryRequest = new UserQueryRequest();
             userQueryRequest.setUserRole(role);
-            userQueryRequest.setPageSize(1000);
+            userQueryRequest.setPageSize(1000); // 最大支持 1000 人批量分发
             try {
                 BaseResponse<Page<UserVO>> userResponse = userFeignClient.listUserByPage(userQueryRequest);
                 if (userResponse != null && userResponse.getData() != null) {
@@ -336,9 +355,10 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
                 }
             } catch (Exception e) {
                 log.error("[NotificationServiceImpl] 获取角色用户组失败, role: {}", role, e);
-                throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取分发用户失败");
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "无法解析目标角色用户列表");
             }
         } else {
+            // 直接指定用户 ID 列表
             try {
                 targetUserIds = Arrays.stream(target.split(","))
                         .map(String::trim)
@@ -346,11 +366,11 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
                         .map(Long::parseLong)
                         .collect(Collectors.toList());
             } catch (NumberFormatException e) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "目标 ID 序列格式错误");
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "目标用户 ID 格式非法");
             }
         }
 
-        // 模板初始化
+        // 2. 准备通知实体列表
         Notification template = new Notification();
         template.setTitle(finalTitle);
         template.setContent(content);
@@ -360,12 +380,14 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
         List<Notification> notificationsToSave = new ArrayList<>();
         if (isBroadcast) {
+            // 全员广播模型 (userId=0)
             Notification notification = new Notification();
             BeanUtils.copyProperties(template, notification);
             notification.setUserId(0L);
             notification.setBizId("broadcast_" + IdUtil.fastSimpleUUID());
             notificationsToSave.add(notification);
         } else if (CollUtil.isNotEmpty(targetUserIds)) {
+            // 点对多模型
             String batchPrefix = "batch_" + IdUtil.fastSimpleUUID() + "_";
             for (int i = 0; i < targetUserIds.size(); i++) {
                 Notification notification = new Notification();
@@ -380,12 +402,13 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
             return Collections.emptyList();
         }
 
+        // 3. 执行批量保存
         boolean saveResult = this.saveBatch(notificationsToSave);
         if (!saveResult) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "分发保存失败");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "分发保存记录失败");
         }
 
-        // 事务提交后批量推送
+        // 4. 事务提交后发起推送
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override

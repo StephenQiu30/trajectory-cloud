@@ -58,14 +58,17 @@ public class SmartAnalysisController {
     private RateLimitUtils rateLimitUtils;
 
     /**
-     * 智能分析 (同步)
+     * 智能分析 (同步处理)
+     * <p>
+     * 用户上传 Excel 文件，AI 分析完成后直接返回分析结果和生成的图表配置。
+     * 适用于数据量较小且生成时间可控的场景。
      *
-     * @param multipartFile   文件
-     * @param chartGenRequest 请求
-     * @return 结果
+     * @param multipartFile   待分析的 Excel 文件
+     * @param chartGenRequest 智能分析配置请求 (包含分析目标、建议图表类型等)
+     * @return 包含生成的图表 Echarts 配置和分析结论的 Chart 实体
      */
     @PostMapping(value = "/gen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "智能分析 (同步)", description = "上传 Excel 进行智能分析并返回结果")
+    @Operation(summary = "智能分析 (同步)", description = "上传 Excel 进行即时智能分析并返回图表配置")
     public BaseResponse<Chart> genChartByAi(@RequestPart("file") MultipartFile multipartFile,
                                             ChartGenRequest chartGenRequest) {
         log.info("智能分析 (同步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
@@ -168,8 +171,18 @@ public class SmartAnalysisController {
         return ResultUtils.success(chart);
     }
 
+    /**
+     * 智能分析 (异步处理)
+     * <p>
+     * 用户上传 Excel 后，系统先保存任务并返回 ID。
+     * 分析过程通过消息队列 (MQ) 异步执行，完成后通知用户或供其轮询。
+     *
+     * @param multipartFile   待分析的 Excel 文件
+     * @param chartGenRequest 智能分析配置请求
+     * @return 已入库的任务 (图表) ID
+     */
     @PostMapping(value = "/gen/async", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "智能分析 (异步)", description = "上传 Excel 进行智能分析 (异步处理)")
+    @Operation(summary = "智能分析 (异步)", description = "上传 Excel 进行后台异步智能分析，适用于耗时较长的生成任务")
     public BaseResponse<Long> genChartByAiAsync(@RequestPart("file") MultipartFile multipartFile,
                                                 ChartGenRequest chartGenRequest) {
         log.info("智能分析 (异步) 请求: {}, 文件: {}", chartGenRequest, multipartFile.getOriginalFilename());
@@ -231,13 +244,15 @@ public class SmartAnalysisController {
     }
 
     /**
-     * 分页获取我的图表列表
+     * 分页查询当前用户的图表列表
+     * <p>
+     * 返回脱敏后的视图对象 (VO)，包含分页元数据。
      *
-     * @param chartQueryRequest 查询请求
-     * @return 图表分页
+     * @param chartQueryRequest 查询条件及分页参数
+     * @return 图表视图对象分页列表
      */
     @PostMapping("/my/list/page/vo")
-    @Operation(summary = "分页获取我的图表列表")
+    @Operation(summary = "分页查询我的图表", description = "获取当前登录用户所属的图表列表视图对象")
     public BaseResponse<Page<ChartVO>> listMyChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest) {
         log.info("分页获取我的图表列表 请求: {}", chartQueryRequest);
         if (chartQueryRequest == null) {
@@ -257,13 +272,13 @@ public class SmartAnalysisController {
     }
 
     /**
-     * 根据 id 获取图表详情
+     * 根据 ID 获取图表详细视图
      *
-     * @param id 图表 id
-     * @return 图表详情
+     * @param id 图表 ID
+     * @return 图表脱敏视图信息
      */
     @GetMapping("/get/vo")
-    @Operation(summary = "获取图表详情")
+    @Operation(summary = "获取图表详情 (VO)", description = "根据 ID 获取指定图表脱敏后的视图对象")
     public BaseResponse<ChartVO> getChartVOById(long id) {
         log.info("获取图表详情 请求, id: {}", id);
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);

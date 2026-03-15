@@ -159,11 +159,15 @@ public class UserController {
 
     /**
      * GitHub 登录回调
+     * <p>
+     * GitHub 授权后的重定向处理接口
      *
-     * @param request GitHub 回调请求
-     * @return BaseResponse<LoginUserVO>
+     * @param request     GitHub 回调请求参数
+     * @param httpRequest HTTP 请求
+     * @return 登录成功的用户信息
      */
     @GetMapping("/login/github/callback")
+    @Operation(summary = "GitHub 登录回调", description = "GitHub 授权后的重定向处理接口")
     public BaseResponse<LoginUserVO> gitHubLoginCallback(@ModelAttribute GitHubCallbackRequest request,
                                                          HttpServletRequest httpRequest) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
@@ -206,14 +210,15 @@ public class UserController {
     // endregion
 
     /**
-     * 创建用户
+     * 创建用户 (仅管理员)
      *
-     * @param userAddRequest userAddRequest
-     * @param request        request
-     * @return BaseResponse<Long>
+     * @param userAddRequest 用户创建请求参数
+     * @param request        HTTP 请求
+     * @return 新创建用户的 ID
      */
     @PostMapping("/add")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @Operation(summary = "创建用户", description = "由管理员手动创建新用户")
     public BaseResponse<Long> addUser(@Validated @RequestBody UserAddRequest userAddRequest,
                                       HttpServletRequest request) {
         ThrowUtils.throwIf(userAddRequest == null, ErrorCode.PARAMS_ERROR);
@@ -242,12 +247,15 @@ public class UserController {
 
     /**
      * 删除用户
+     * <p>
+     * 仅用户本人或管理员有权执行删除操作
      *
-     * @param deleteRequest deleteRequest
-     * @param request       request
-     * @return /ioBaseResponse<Boolean>
+     * @param deleteRequest 删除请求参数 (包含用户 ID)
+     * @param request       HTTP 请求
+     * @return 是否删除成功
      */
     @PostMapping("/delete")
+    @Operation(summary = "删除用户", description = "删除指定 ID 的用户，需要本人或管理员权限")
     public BaseResponse<Boolean> deleteUser(@Validated @RequestBody DeleteRequest deleteRequest,
                                             HttpServletRequest request) {
         ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -277,13 +285,14 @@ public class UserController {
     }
 
     /**
-     * 更新用户
+     * 更新用户 (管理员更新)
      *
-     * @param userUpdateRequest userUpdateRequest
-     * @param request           request
-     * @return BaseResponse<Boolean>
+     * @param userUpdateRequest 用户更新请求参数
+     * @param request           HTTP 请求
+     * @return 是否更新成功
      */
     @PostMapping("/update")
+    @Operation(summary = "更新用户", description = "管理员更新指定用户信息")
     public BaseResponse<Boolean> updateUser(@Validated @RequestBody UserUpdateRequest userUpdateRequest,
                                             HttpServletRequest request) {
         ThrowUtils.throwIf(userUpdateRequest == null || userUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
@@ -327,14 +336,15 @@ public class UserController {
     }
 
     /**
-     * 根据 id 获取用户（仅管理员）
+     * 根据 ID 获取用户 (仅管理员)
      *
-     * @param id      用户id
-     * @param request request
-     * @return BaseResponse<User>
+     * @param id      用户 ID
+     * @param request HTTP 请求
+     * @return 用户详细信息
      */
     @GetMapping("/get")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @Operation(summary = "根据 ID 获取用户", description = "管理员根据用户 ID 获取用户详细脱敏前信息")
     public BaseResponse<User> getUserById(@RequestParam("id") long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         User user = userService.getById(id);
@@ -343,13 +353,14 @@ public class UserController {
     }
 
     /**
-     * 根据 id 获取包装类
+     * 根据 ID 获取用户视图对象
      *
-     * @param id      用户id
-     * @param request request
-     * @return 查询得到的用户包装类
+     * @param id      用户 ID
+     * @param request HTTP 请求
+     * @return 用户脱敏后的视图信息
      */
     @GetMapping("/get/vo")
+    @Operation(summary = "根据 ID 获取用户信息 (VO)", description = "获取指定用户脱敏后的视图对象")
     public BaseResponse<UserVO> getUserVOById(@RequestParam("id") long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         User user = userService.getById(id);
@@ -358,12 +369,13 @@ public class UserController {
     }
 
     /**
-     * 批量根据 id 获取用户包装类（Feign 调用）
+     * 批量根据 ID 获取用户视图对象 (内部 Feign 调用)
      *
-     * @param ids 用户id列表
-     * @return 查询得到的用户包装类列表
+     * @param ids 用户 ID 列表
+     * @return 用户视图对象列表
      */
     @GetMapping("/get/vo/batch")
+    @Operation(summary = "批量获取用户信息 (VO)", description = "批量获取指定用户 ID 列表的脱敏视图信息，主要用于微服务内部调用")
     public BaseResponse<List<UserVO>> getUserVOByIds(@RequestParam("ids") List<Long> ids) {
         ThrowUtils.throwIf(ids == null || ids.isEmpty(), ErrorCode.PARAMS_ERROR);
         List<User> userList = userService.listByIds(ids);
@@ -375,14 +387,15 @@ public class UserController {
     }
 
     /**
-     * 分页获取用户列表（仅管理员）
+     * 分页获取用户列表 (仅管理员)
      *
-     * @param userQueryRequest userQueryRequest
-     * @param request          request
-     * @return BaseResponse<Page < User>>
+     * @param userQueryRequest 分页查询请求参数
+     * @param request          HTTP 请求
+     * @return 分页后的用户列表
      */
     @PostMapping("/list/page")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @Operation(summary = "分页获取用户列表", description = "管理员分页获取系统所有用户原始数据")
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
                                                    HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
@@ -393,13 +406,14 @@ public class UserController {
     }
 
     /**
-     * 分页获取用户封装列表
+     * 分页获取用户视图对象列表
      *
-     * @param userQueryRequest 用户查询请求
-     * @param request          request
-     * @return BaseResponse<Page < UserVO>>
+     * @param userQueryRequest 用户分页查询请求参数
+     * @param request          HTTP 请求
+     * @return 分页后的用户视图信息列表
      */
     @PostMapping("/list/page/vo")
+    @Operation(summary = "分页获取用户列表 (VO)", description = "分页获取系统用户脱敏后的视图对象列表")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
                                                        HttpServletRequest request) {
         ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
@@ -415,13 +429,14 @@ public class UserController {
     }
 
     /**
-     * 编辑个人信息
+     * 编辑当前登录用户信息
      *
-     * @param userEditRequest userEditRequest
-     * @param request         request
-     * @return BaseResponse<Boolean>
+     * @param userEditRequest 用户编辑请求参数
+     * @param request         HTTP 请求
+     * @return 是否修改成功
      */
     @PostMapping("/edit")
+    @Operation(summary = "编辑个人信息", description = "用户修改并保存自己的个人基本资料")
     public BaseResponse<Boolean> editUser(@Validated @RequestBody UserEditRequest userEditRequest,
                                           HttpServletRequest request) {
         ThrowUtils.throwIf(userEditRequest == null, ErrorCode.PARAMS_ERROR);
