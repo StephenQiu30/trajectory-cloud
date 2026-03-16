@@ -35,9 +35,6 @@ spring:
           - /api/user/email/code
           - /api/notification/page
           - /api/*/v3/api-docs/**
-      filter:
-        request-rate-limiter:
-          key-resolver: "#{@ipKeyResolver}"
       server:
         webflux:
           routes:
@@ -45,12 +42,6 @@ spring:
               uri: lb://trajectory-user-service
               predicates:
                 - Path=/api/user/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 20
-                    key-resolver: "#{@ipKeyResolver}"
 
             - id: trajectory-websocket-service
               uri: lb://trajectory-websocket-service
@@ -61,28 +52,20 @@ spring:
               uri: lb://trajectory-notification-service
               predicates:
                 - Path=/api/notification/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 20
-                    redis-rate-limiter.burstCapacity: 40
-                    key-resolver: "#{@userKeyResolver}"
 
             - id: trajectory-ai-service
               uri: lb://trajectory-ai-service
               predicates:
                 - Path=/api/ai/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 5
-                    redis-rate-limiter.burstCapacity: 10
-                    key-resolver: "#{@userKeyResolver}"
 
           globalcors:
             cors-configurations:
               '[/**]':
-                allowed-origin-patterns: "*"
+                allowed-origin-patterns:
+                  - "http://150.195.45.163:3000"
+                  - "https://150.195.45.163:3000"
+                  - "http://localhost:3000"
+                  - "http://127.0.0.1:3000"
                 allowed-methods: "*"
                 allowed-headers: "*"
                 allow-credentials: true

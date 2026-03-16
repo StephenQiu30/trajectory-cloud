@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Nacos 注册中心和配置中心
   nacos:
-    image: nacos/nacos-server:latest
+    image: nacos/nacos-server:v2.4.3
     container_name: trajectory-nacos
     restart: always
     environment:
@@ -18,12 +18,11 @@ services:
       - JVM_XMS=512m
       - JVM_XMX=512m
       - JVM_XMN=256m
-      - JAVA_OPT_EXT=-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m
+      - JAVA_OPT_EXT=-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:MaxMetaspaceSize=128m -Dnacos.logging.default.config.enabled=false
     volumes:
       - ./docker/nacos/logs:/home/nacos/logs
       - ./docker/nacos/data:/home/nacos/data
     ports:
-      - "8840:8080"
       - "8848:8848"
       - "9848:9848"
       - "9849:9849"
@@ -34,6 +33,8 @@ services:
       resources:
         limits:
           memory: 1024M
+        reservations:
+          memory: 512M
 
   # RabbitMQ 消息队列
   rabbitmq:

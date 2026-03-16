@@ -1,6 +1,6 @@
 package com.trajectory.cloud.common.auth.config;
 
-import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
+import cn.dev33.satoken.jwt.StpLogicJwtForMixin;
 import cn.dev33.satoken.stp.StpLogic;
 import com.trajectory.cloud.common.auth.config.condition.JwtCondition;
 import jakarta.annotation.PostConstruct;
@@ -25,7 +25,7 @@ public class JwtConfiguration {
      */
     @Bean
     public StpLogic getStpLogicJwt() {
-        return new StpLogicJwtForSimple();
+        return new StpLogicJwtForMixin();
     }
 
     /**

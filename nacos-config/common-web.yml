@@ -50,7 +50,7 @@ sa-token:
   token-prefix: Bearer
   timeout: 2592000
   active-timeout: 604800
-  is-concurrent: false
+  is-concurrent: true
   is-share: true
   token-style: uuid
   is-log: true

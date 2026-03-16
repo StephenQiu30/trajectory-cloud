@@ -1,4 +1,4 @@
-# 2核4G 服务器：应用总内存约 2.2G，预留 ~1.8G 给系统/Nacos/MySQL/Redis/RabbitMQ 等
+# 2核4G 服务器：仅部署微服务，Nacos/RabbitMQ/MySQL/Redis 在外部
 version: '3.8'
 
 services:
@@ -10,7 +10,7 @@ services:
     container_name: trajectory-gateway
     restart: always
     ports:
-      - "${GATEWAY_PORT_EXTERNAL}:8080"
+      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
@@ -18,14 +18,14 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=64m -XX:MaxRAMPercentage=65 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 256M
+          memory: 600M
         reservations:
-          memory: 128M
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -37,7 +37,7 @@ services:
     container_name: trajectory-user-service
     restart: always
     ports:
-      - "${USER_SERVICE_PORT_EXTERNAL}:8081"
+      - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
@@ -45,14 +45,14 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx512m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=192m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 768M
         reservations:
-          memory: 256M
+          memory: 384M
     networks:
       - trajectory-network
 
@@ -64,7 +64,7 @@ services:
     container_name: trajectory-notification-service
     restart: always
     ports:
-      - "${NOTIFICATION_SERVICE_PORT_EXTERNAL}:8082"
+      - "8082:8082"
       - "9091:9091"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -73,14 +73,14 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=80m -XX:MaxRAMPercentage=55 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 384M
+          memory: 600M
         reservations:
-          memory: 192M
+          memory: 256M
     networks:
       - trajectory-network
 
@@ -92,7 +92,7 @@ services:
     container_name: trajectory-ai-service
     restart: always
     ports:
-      - "${AI_SERVICE_PORT_EXTERNAL}:8083"
+      - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
@@ -100,14 +100,14 @@ services:
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
       - SPRING_MAIN_LAZY_INITIALIZATION=true
-      - JAVA_TOOL_OPTIONS=-Xss256k -XX:MaxMetaspaceSize=96m -XX:MaxRAMPercentage=50 -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx512m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=192m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 768M
         reservations:
-          memory: 256M
+          memory: 384M
     networks:
       - trajectory-network
 

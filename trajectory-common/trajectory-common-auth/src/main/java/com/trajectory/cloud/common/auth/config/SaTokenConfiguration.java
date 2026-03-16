@@ -13,6 +13,7 @@ import com.trajectory.cloud.common.common.ResultUtils;
 import com.trajectory.cloud.common.constants.SecurityConstant;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ import java.util.List;
 @Configuration
 @Slf4j
 @Conditional(SaCondition.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class SaTokenConfiguration implements WebMvcConfigurer {
 
     /**

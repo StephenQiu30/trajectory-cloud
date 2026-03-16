@@ -124,12 +124,12 @@ graph TD
 - `MYSQL_PORT_EXTERNAL`: 宿主机访问 MySQL 的端口 (默认 `13306`)。
 - `ES_VERSION`: Elasticsearch 版本 (需与本地环境匹配，当前为 `9.3.0-arm64`)。
 
-### 2. 部署基础环境 (Infrastructure)
+### 2. 部署基础环境 (Infrastructure - 本地)
 
 基础环境包含 MySQL, Redis, Nacos, RabbitMQ, ES 等中间件。
 
 ```bash
-# 启动中间件环境
+# 启动本地中间件环境
 docker compose -f docker-compose-env.yml up -d
 ```
 
@@ -140,16 +140,40 @@ docker compose -f docker-compose-env.yml up -d
     >
 - *注：请参考示例文件自行创建生产环境配置。*
 
-### 3. 部署业务项目 (Application)
+### 3. 部署业务项目 (Application - 本地)
 
-在环境准备就绪后，启动网关及所有业务微服务。
+在环境准备就绪后，使用本地 `.env` 启动网关及所有业务微服务。
 
 ```bash
-# 1. 启动项目环境与业务容器 (自动触发 Maven 多阶段打包)
-docker compose up -d --build
+# 使用本地环境变量启动业务微服务
+docker compose --env-file .env -f docker-compose.yml up -d --build
 ```
 
-### 4. 服务访问入口
+### 4. 生产环境部署 (Production)
+
+生产环境推荐使用 `.env.prod` 管理线上变量，并通过 `docker-compose-env.yml` 与 `docker-compose.yml` 分离环境与业务。
+
+1. 准备 `.env.prod`：
+   - `NACOS_HOST`: 生产环境 Nacos 服务器 IP。
+   - `NACOS_PORT`: 默认 `8848`。
+   - `NACOS_AUTH_TOKEN`: **长度 ≥ 32 字节且 Base64 编码** 的密钥，用于 Nacos 认证。
+   - `NACOS_AUTH_IDENTITY_KEY` / `NACOS_AUTH_IDENTITY_VALUE`: 与 Nacos 配置中保持一致。
+   - `GATEWAY_PORT_EXTERNAL` / `USER_SERVICE_PORT_EXTERNAL` / `NOTIFICATION_SERVICE_PORT_EXTERNAL` / `AI_SERVICE_PORT_EXTERNAL`:
+     与实际暴露的宿主机端口保持一致（如均为 `8080`~`8083`）。
+
+2. 启动生产环境中间件：
+
+```bash
+docker compose --env-file .env.prod -f docker-compose-env.yml up -d --build
+```
+
+3. 启动生产环境业务微服务：
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.yml up -d --build
+```
+
+### 5. 服务访问入口
 
 | 服务                | 宿主机地址                         | 默认账号            | 默认密码                  |
 |:------------------|:------------------------------|:----------------|:----------------------|
@@ -161,6 +185,21 @@ docker compose up -d --build
 | **Kibana 可视化**    | `http://localhost:5601`       | `kibana_system` | `${DEFAULT_PASSWORD}` |
 | **Redis**         | `localhost:16379`             | -               | -                     |
 | **MySQL**         | `localhost:13306`             | `root`          | `${DEFAULT_PASSWORD}` |
+
+### 6. 常见问题排查（部署相关）
+
+- **Nacos 客户端仍然连接 `localhost:8848`**
+  - 确认启动业务微服务时使用了对应环境的 `--env-file` 参数（如 `.env` 或 `.env.prod`）。
+  - 检查容器中的 `SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR` / `SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR` 是否为预期的 Nacos 地址。
+
+- **Nacos 日志报错 `Server check fail, port 9848`**
+  - 确认 `docker-compose-env.yml` 对应的 Nacos 环境栈已正常启动。
+  - 在宿主机执行 `ss -tulnp | grep 9848`，确认 9848 端口已监听并开放。
+  - 检查云服务器安全组 / 防火墙是否放行 9848/9849/9850 端口。
+
+- **Nacos 启动报错 `the length of secret key must great than or equal 32 bytes`**
+  - 确认 `.env.prod` 中的 `NACOS_AUTH_TOKEN` 为 **Base64 编码后的字符串**，且解码后长度 ≥ 32 字节。
+  - 修改后重新通过 `docker compose --env-file .env.prod -f docker-compose-env.yml up -d --build` 重启 Nacos 容器。
 
 ---
 
