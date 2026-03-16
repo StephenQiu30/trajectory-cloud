@@ -22,9 +22,14 @@ import java.util.stream.Collectors;
 public class IpUtils {
 
     private static final String XDB_PATH = "/ip2region.xdb";
+
+    /**
+     * IP 数据库缓存缓冲区
+     */
     private static byte[] cBuff;
 
     static {
+        // 项目启动时预加载 IP 归属地数据库到内存，提高并发查询吞吐能力
         try (InputStream inputStream = IpUtils.class.getResourceAsStream(XDB_PATH)) {
             if (inputStream != null) {
                 cBuff = inputStream.readAllBytes();
@@ -125,6 +130,12 @@ public class IpUtils {
         return isUnknown(first) ? null : first;
     }
 
+    /**
+     * 判断字符串是否表示 "未知" IP 标记
+     *
+     * @param value 待检测字符串
+     * @return 若忽略大小写等于 "unknown" 则返回 true
+     */
     private static boolean isUnknown(String value) {
         return "unknown".equalsIgnoreCase(value);
     }

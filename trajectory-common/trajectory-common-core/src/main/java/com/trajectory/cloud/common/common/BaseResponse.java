@@ -43,16 +43,34 @@ public class BaseResponse<T> implements Serializable {
     public BaseResponse() {
     }
 
+    /**
+     * 响应构造函数 (全参)
+     *
+     * @param code    状态码
+     * @param data    响应数据
+     * @param message 响应消息
+     */
     public BaseResponse(int code, T data, String message) {
         this.code = code;
         this.data = data;
         this.message = message;
     }
 
+    /**
+     * 响应构造函数 (不带消息)
+     *
+     * @param code 状态码
+     * @param data 响应数据
+     */
     public BaseResponse(int code, T data) {
         this(code, data, "");
     }
 
+    /**
+     * 响应构造函数 (使用 ErrorCode)
+     *
+     * @param errorCode 错误码枚举
+     */
     public BaseResponse(ErrorCode errorCode) {
         this(errorCode.getCode(), null, errorCode.getMessage());
     }

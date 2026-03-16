@@ -132,6 +132,17 @@ public class UserController {
         return ResultUtils.success(authorizeUrl);
     }
 
+    /**
+     * 上传用户头像
+     * <p>
+     * 1. 校验文件非空及登录状态
+     * 2. 限制文件大小限制 (5MB) 及格式 (jpeg/jpg/svg/png/webp)
+     * 3. 根据用户 ID 生成存储路径，调用对象存储服务上传并返回公网访问 URL
+     *
+     * @param file    头像文件 (Multipart)
+     * @param request HTTP 请求
+     * @return 包含头像 URL 和文件名的对象
+     */
     @PostMapping(value = "/avatar/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "上传用户头像", description = "上传头像图片，返回访问 URL")
     public BaseResponse<AvatarUploadVO> uploadAvatar(@RequestPart("file") MultipartFile file,
@@ -160,11 +171,12 @@ public class UserController {
     /**
      * GitHub 登录回调
      * <p>
-     * GitHub 授权后的重定向处理接口
+     * 处理 GitHub 授权重定向，校验 state 参数并在成功后执行登录。
+     * 内部会调用 UserService 的 userLoginByGitHub 完成 Token 换取及用户注册/绑定逻辑。
      *
-     * @param request     GitHub 回调请求参数
+     * @param request     GitHub 回调请求参数 (code + state)
      * @param httpRequest HTTP 请求
-     * @return 登录成功的用户信息
+     * @return 登录成功的用户信息 (含鉴权 Token)
      */
     @GetMapping("/login/github/callback")
     @Operation(summary = "GitHub 登录回调", description = "GitHub 授权后的重定向处理接口")

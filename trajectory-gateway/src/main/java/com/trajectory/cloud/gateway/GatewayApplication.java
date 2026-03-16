@@ -5,6 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
+/**
+ * 网关服务启动类
+ *
+ * @author StephenQiu30
+ */
 @EnableDiscoveryClient
 @SpringBootApplication
 @ComponentScan(basePackages = {

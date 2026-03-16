@@ -70,10 +70,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 校验用户信息合法性
      * <p>
-     * 包含昵称长度、邮箱格式及唯一性、手机号格式等校验。
+     * 校验规则如下：
+     * 1. 必填项校验: 新增时 userName, userEmail 不能为空
+     * 2. 昵称长度: 2 - 30 个字符
+     * 3. 邮箱校验: 符合 Regex 常规邮箱格式，且在数据库中唯一 (排除自身)
+     * 4. 手机号校验: 符合 Regex 中国大陆手机号格式
+     * 5. 简介展示: 不超过 500 字
      *
      * @param user 用户实体
-     * @param add  是否为新增操作 (新增时强制校验必填项)
+     * @param add  是否为新增操作
      */
     @Override
     public void validUser(User user, boolean add) {

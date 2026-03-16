@@ -22,44 +22,52 @@ import java.util.List;
 public interface UserFeignClient {
 
     /**
-     * 根据 ID 获取用户 VO
+     * 根据 ID 获取用户脱敏视图对象 (VO)
+     * <p>
+     * 内部逻辑：根据 ID 查库并进行敏感信息脱敏处理。
      *
-     * @param id 用户 ID
-     * @return 用户信息
+     * @param id 用户唯一标识 ID
+     * @return 统一响应封装的 UserVO
      */
     @GetMapping("/get/vo")
     BaseResponse<UserVO> getUserVOById(@RequestParam("id") Long id);
 
     /**
-     * 批量获取用户 VO
+     * 批量获取用户脱敏视图对象 (VO)
+     * <p>
+     * 常用于聚合查询或消息队列同步任务。
      *
-     * @param ids 用户 ID 列表
-     * @return 用户信息列表
+     * @param ids 用户 ID 数组/列表
+     * @return 统一响应封装的 UserVO 集合
      */
     @GetMapping("/get/vo/batch")
     BaseResponse<List<UserVO>> getUserVOByIds(@RequestParam("ids") List<Long> ids);
 
     /**
-     * 获取当前登录用户
+     * 获取当前系统登录用户的视图信息
+     * <p>
+     * 依赖 Feign 请求头透传 Token。
      *
-     * @return 当前登录用户信息
+     * @return 登录用户详细视图对象
      */
     @GetMapping("/get/login")
     BaseResponse<LoginUserVO> getLoginUser();
 
     /**
-     * 是否为管理员
+     * 校验当前通过网关及 Feign 链路的用户是否具备管理员权限
      *
-     * @return 是否为管理员
+     * @return 是否为管理员标识
      */
     @GetMapping("/is/admin")
     BaseResponse<Boolean> isAdmin();
 
     /**
-     * 分页查询用户列表（用于同步）
+     * 分页查询用户视图列表
+     * <p>
+     * 通常用于搜索、同步等大批量数据流转场景。
      *
-     * @param userQueryRequest 查询请求
-     * @return 用户列表
+     * @param userQueryRequest 包含分页及过滤条件的查询对象
+     * @return 分页包装的 UserVO 列表
      */
     @PostMapping("/list/page/vo")
     BaseResponse<Page<UserVO>> listUserByPage(
