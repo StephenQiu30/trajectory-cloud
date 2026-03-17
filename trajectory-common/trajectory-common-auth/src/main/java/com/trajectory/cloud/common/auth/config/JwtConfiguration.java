@@ -1,6 +1,7 @@
 package com.trajectory.cloud.common.auth.config;
 
 import cn.dev33.satoken.jwt.StpLogicJwtForMixin;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.stp.StpLogic;
 import com.trajectory.cloud.common.auth.config.condition.JwtCondition;
 import jakarta.annotation.PostConstruct;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * SaToken是否使用 Jwt
@@ -24,8 +26,11 @@ public class JwtConfiguration {
      * 详情见：<a href="https://sa-token.cc/doc.html#/plugin/jwt-extend">...</a>)
      */
     @Bean
+    @Primary
     public StpLogic getStpLogicJwt() {
-        return new StpLogicJwtForMixin();
+        StpLogic logic = new StpLogicJwtForMixin();
+        StpUtil.setStpLogic(logic);
+        return logic;
     }
 
     /**

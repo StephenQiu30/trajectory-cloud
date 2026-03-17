@@ -28,6 +28,10 @@ spring:
       - nacos:common-mysql-prod.yml?group=DEFAULT_GROUP&refresh=true
       - nacos:common-rabbitmq-prod.yml?group=DEFAULT_GROUP&refresh=true
 
+websocket:
+  port: 9091
+  path: /websocket
+
 # MyBatis-Plus 业务配置
 mybatis-plus:
   type-aliases-package: com.trajectory.cloud.notification.model.entity

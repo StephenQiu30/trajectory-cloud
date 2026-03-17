@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,18 +37,18 @@ public class RedissonConfiguration {
         Config config = new Config();
         String address = String.format("redis://%s:%d", redisProperties.getHost(), redisProperties.getPort());
 
-        config.useSingleServer()
+        SingleServerConfig server = config.useSingleServer()
                 .setAddress(address)
                 .setDatabase(redisProperties.getDatabase())
                 .setConnectionMinimumIdleSize(5)
                 .setConnectionPoolSize(10)
                 .setConnectTimeout(redisProperties.getTimeout())
-                .setTimeout(3000)
+                .setTimeout(redisProperties.getTimeout())
                 .setRetryAttempts(3)
                 .setRetryInterval(1500);
 
         if (redisProperties.getPassword() != null && !redisProperties.getPassword().isEmpty()) {
-            config.useSingleServer().setPassword(redisProperties.getPassword());
+            server.setPassword(redisProperties.getPassword());
         }
 
         return Redisson.create(config);

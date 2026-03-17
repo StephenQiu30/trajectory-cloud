@@ -59,7 +59,9 @@ spring:
             - id: trajectory-websocket-service
               uri: lb://trajectory-websocket-service
               predicates:
-                - Path=/api/websocket/**
+                - Path=/api/websocket,/api/websocket/**
+              filters:
+                - StripPrefix=1
 
             - id: trajectory-notification-service
               uri: lb://trajectory-notification-service

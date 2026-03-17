@@ -3,20 +3,9 @@ package com.trajectory.cloud.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.ComponentScan;
 
-/**
- * 网关服务启动类
- *
- * @author StephenQiu30
- */
 @EnableDiscoveryClient
-@SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.trajectory.cloud.gateway",
-        "com.trajectory.cloud.common.auth.config",
-        "com.trajectory.cloud.common.auth.config.condition"
-})
+@SpringBootApplication(scanBasePackages = "com.trajectory.cloud")
 public class GatewayApplication {
 
     public static void main(String[] args) {

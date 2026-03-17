@@ -4,16 +4,24 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.trajectory.cloud.common.cache.properties.RedisProperties;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 /**
  * Redis 配置类
@@ -26,7 +34,23 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfiguration {
 
     @Resource
-    private RedisConnectionFactory redisConnectionFactory;
+    private RedisProperties redisProperties;
+
+    @Bean
+    @ConditionalOnMissingBean(RedisConnectionFactory.class)
+    public RedisConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration standalone = new RedisStandaloneConfiguration();
+        standalone.setHostName(redisProperties.getHost());
+        standalone.setPort(redisProperties.getPort());
+        standalone.setDatabase(redisProperties.getDatabase());
+        if (redisProperties.getPassword() != null && !redisProperties.getPassword().isEmpty()) {
+            standalone.setPassword(RedisPassword.of(redisProperties.getPassword()));
+        }
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .commandTimeout(Duration.ofMillis(redisProperties.getTimeout()))
+                .build();
+        return new LettuceConnectionFactory(standalone, clientConfig);
+    }
 
     /**
      * 配置 Redis 序列化器
@@ -49,9 +73,11 @@ public class RedisConfiguration {
      * @return 配置好的 RedisTemplate 实例
      */
     @Bean("redisTemplateBean")
-    public RedisTemplate<String, Object> redisTemplate(RedisSerializer<Object> redisSerializer) {
+    public RedisTemplate<String, Object> redisTemplate(
+            RedisConnectionFactory redisConnectionFactory,
+            RedisSerializer<Object> redisSerializer
+    ) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        // 设置 Redis 连接工厂
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         RedisSerializer<String> stringSerializer = new StringRedisSerializer();
