@@ -8,6 +8,6 @@ RUN apk add --no-cache tzdata && \
 COPY trajectory-service/trajectory-ai-service/target/trajectory-ai-service-1.0.0.jar app.jar
 
 ENV SPRING_PROFILES_ACTIVE="prod"
-EXPOSE 8086
+EXPOSE 8083
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

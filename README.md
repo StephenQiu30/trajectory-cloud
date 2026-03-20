@@ -1,4 +1,4 @@
-# 轨迹 - 基于 AIGC 的数据可视化平台
+# 轨迹-基于AIGC的数据可视化平台
 
 基于 **Spring Cloud Alibaba** 深度构建的分布式微服务解决方案，旨在打造一款智能、高效的数据可视化平台，采用最新的 **Java 21
 ** 和 **Spring Boot 3.5.9** 技术栈。
@@ -44,6 +44,7 @@ graph TD
 | `trajectory-user-service` | **用户中心**：支持 GitHub、邮箱验证码登录及 RBAC 权限管理 | 8081 | ✅ |
 | `trajectory-notification-service` | **通知中心**：系统通知分发、基于 MQ/WebSocket 的实时消息推送 | 8082 | ✅ |
 | `trajectory-ai-service` | **智能分析**：集成 LangChain4j，提供 Excel/数据智能分析与图表生成 | 8083 | ✅ |
+| `trajectory-next` | **前端应用**：个人中心、通知、AI 页面与交互展示 | 3000 | ✅ |
 
 ---
 
@@ -136,7 +137,11 @@ docker compose -f docker-compose-env.yml up -d
 > [!TIP]
 > **初始化工作**：
 > - **数据库**：首次启动后，请根据 `sql/README.md` 执行初始化脚本。
-> - **配置中心**：访问 Nacos (`http://localhost:8840/nacos`) 并导入 `nacos-config/` 下的配置文件。
+> - **配置中心**：访问 Nacos (`http://localhost:8848/nacos`) 并导入 `nacos-config/` 下的配置文件。本地用 `nacos-config/import-config.sh`。
+>
+>   ```bash
+>   bash nacos-config/import-config.sh
+>   ```
     >
 - *注：请参考示例文件自行创建生产环境配置。*
 
@@ -149,7 +154,14 @@ docker compose -f docker-compose-env.yml up -d
 docker compose --env-file .env -f docker-compose.yml up -d --build
 ```
 
-### 4. 生产环境部署 (Production)
+### 4. 启动前端 (trajectory-next)
+在后端网关可用后，启动前端（需要先修改 `trajectory-next/.env.production` 里的 `NEXT_PUBLIC_API_BASE_URL` 与 `NEXT_PUBLIC_WS_PORT`，以便构建时烘焙到客户端代码）：
+```bash
+cd trajectory-next
+docker compose up -d --build
+```
+
+### 5. 生产环境部署 (Production)
 
 生产环境推荐使用 `.env.prod` 管理线上变量，并通过 `docker-compose-env.yml` 与 `docker-compose.yml` 分离环境与业务。
 
@@ -167,18 +179,40 @@ docker compose --env-file .env -f docker-compose.yml up -d --build
 docker compose --env-file .env.prod -f docker-compose-env.yml up -d --build
 ```
 
-3. 启动生产环境业务微服务：
+3. 导入生产环境配置：
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.yml up -d --build
+bash nacos-config/import-config-prod.sh
 ```
 
-### 5. 服务访问入口
+4. 启动生产环境业务微服务（先 user/notification/ai，不含网关）：
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.yml up -d --build user-service notification-service ai-service
+```
+
+5. 启动生产环境网关：
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.yml up -d --build gateway
+```
+
+### 5. 预发验证（Staging）与冒烟检查
+
+- 环境准备：预发环境使用独立 Nacos/中间件（或独立端口），复制 `.env.prod` 为 `.env.staging`，并在预发 Nacos 中导入 `nacos-config/import-config-prod.sh`。
+- Nacos：确认 `common-*-prod`、`common-secret-prod.properties` 已导入并生效（服务启动时无 config import 错误）。
+- 网关：访问 `http://<host>:8080/doc.html`，以及白名单接口 `/api/user/register`、`/api/user/login`、`/api/notification/page` 返回非 5xx。
+- AI：访问 `/api/ai/analysis`（可用空/最小请求体）返回非 5xx。
+- CORS：浏览器执行跨域预检（使用 `application-prod.yml` 白名单域名），预检返回 200。
+- 存储与异步：确认 RabbitMQ/Redis/MySQL 连接成功，提交一个 MQ 驱动的业务请求后可观测到消费与落库。
+- 生产环境上线后执行同一套冒烟检查。
+
+### 6. 服务访问入口
 
 | 服务                | 宿主机地址                         | 默认账号            | 默认密码                  |
 |:------------------|:------------------------------|:----------------|:----------------------|
 | **API 网关/业务入口**   | `http://localhost:8080`       | -               | -                     |
-| **Nacos 控制台**     | `http://localhost:8840/nacos` | `nacos`         | `nacos`               |
+| **Nacos 控制台**     | `http://localhost:8848/nacos` | `nacos`         | `nacos`               |
 | **RabbitMQ 管理**   | `http://localhost:15672`      | `guest`         | `guest`               |
 | **MinIO 控制台**     | `http://localhost:19001`      | `admin`         | `${DEFAULT_PASSWORD}` |
 | **Elasticsearch** | `http://localhost:9200`       | `elastic`       | `${DEFAULT_PASSWORD}` |
@@ -186,7 +220,7 @@ docker compose --env-file .env.prod -f docker-compose.yml up -d --build
 | **Redis**         | `localhost:16379`             | -               | -                     |
 | **MySQL**         | `localhost:13306`             | `root`          | `${DEFAULT_PASSWORD}` |
 
-### 6. 常见问题排查（部署相关）
+### 7. 常见问题排查（部署相关）
 
 - **Nacos 客户端仍然连接 `localhost:8848`**
   - 确认启动业务微服务时使用了对应环境的 `--env-file` 参数（如 `.env` 或 `.env.prod`）。

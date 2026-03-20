@@ -1,12 +1,26 @@
 #!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "${SCRIPT_DIR}/.." && pwd )"
 
-NACOS_HOST="localhost"
-NACOS_PORT="8848"
+# If NACOS_* values are already provided via environment, don't override them
+# by sourcing the local .env (which may point to a different Nacos).
+if [ -f "${PROJECT_ROOT}/.env" ]; then
+    if [ -n "${NACOS_HOST:-}" ] || [ -n "${NACOS_PORT:-}" ] || [ -n "${NACOS_USERNAME:-}" ] || [ -n "${NACOS_PASSWORD:-}" ]; then
+        :
+    else
+        set -a
+        source "${PROJECT_ROOT}/.env"
+        set +a
+    fi
+fi
+
+NACOS_HOST="${NACOS_HOST:-localhost}"
+NACOS_PORT="${NACOS_PORT:-8848}"
 NACOS_ADDR="http://${NACOS_HOST}:${NACOS_PORT}"
 NAMESPACE="trajectory-cloud"
 GROUP="DEFAULT_GROUP"
-USERNAME="nacos"
-PASSWORD="nacos"
+USERNAME="${NACOS_USERNAME:-nacos}"
+PASSWORD="${NACOS_PASSWORD:-nacos}"
 
 echo "=============================================="
 echo "   Nacos Configuration Importer"

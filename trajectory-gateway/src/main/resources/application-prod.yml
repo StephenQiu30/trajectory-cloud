@@ -43,13 +43,6 @@ spring:
               predicates:
                 - Path=/api/user/**
 
-            - id: trajectory-websocket-service
-              uri: lb://trajectory-websocket-service
-              predicates:
-                - Path=/api/websocket,/api/websocket/**
-              filters:
-                - StripPrefix=1
-
             - id: trajectory-notification-service
               uri: lb://trajectory-notification-service
               predicates:
@@ -64,10 +57,7 @@ spring:
             cors-configurations:
               '[/**]':
                 allowed-origin-patterns:
-                  - "http://150.195.45.163:3000"
-                  - "https://150.195.45.163:3000"
-                  - "http://localhost:3000"
-                  - "http://127.0.0.1:3000"
+                  - "*"
                 allowed-methods: "*"
                 allowed-headers: "*"
                 allow-credentials: true

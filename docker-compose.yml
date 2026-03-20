@@ -17,7 +17,6 @@ services:
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
       - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
@@ -44,7 +43,6 @@ services:
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
       - JAVA_TOOL_OPTIONS=-Xms128m -Xmx512m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=192m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
@@ -72,7 +70,6 @@ services:
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
       - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:
@@ -99,7 +96,6 @@ services:
       - SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR=${NACOS_HOST}:${NACOS_PORT}
       - SPRING_CLOUD_NACOS_USERNAME=${NACOS_USERNAME}
       - SPRING_CLOUD_NACOS_PASSWORD=${NACOS_PASSWORD}
-      - SPRING_MAIN_LAZY_INITIALIZATION=true
       - JAVA_TOOL_OPTIONS=-Xms128m -Xmx512m -Xss256k -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=192m -XX:+UseSerialGC -Dnacos.logging.default.config.enabled=false
     deploy:
       resources:

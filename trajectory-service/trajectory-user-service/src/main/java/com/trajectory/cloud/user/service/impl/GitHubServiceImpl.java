@@ -60,7 +60,7 @@ public class GitHubServiceImpl implements GitHubService {
                     .form(paramMap)
                     .header("Accept", "application/json")
                     .header("User-Agent", "trajectory-cloud")
-                    .timeout(5000)
+                    .timeout(30000)
                     .execute();
             int status = response.getStatus();
             String body = response.body();
@@ -100,7 +100,7 @@ public class GitHubServiceImpl implements GitHubService {
                     .header("Authorization", "token " + accessToken)
                     .header("Accept", "application/json")
                     .header("User-Agent", "trajectory-cloud")
-                    .timeout(5000)
+                    .timeout(30000)
                     .execute();
             if (response.getStatus() != 200) {
                 log.warn("GitHub user 信息请求失败，status={}, body={}", response.getStatus(), response.body());
