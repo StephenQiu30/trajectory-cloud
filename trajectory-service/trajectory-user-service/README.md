@@ -1,46 +1,69 @@
-# trajectory-user-service - 用户服务
+# trajectory-user-service (用户服务)
 
-用户服务是 `trajectory-cloud` 的基石，负责全系统的账号体系、多维身份认证、精细化权限控制及第三方登录集成。
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Sa-Token](https://img.shields.io/badge/Auth-Sa--Token-blue.svg)](https://sa-token.cc/)
+[![MySQL](https://img.shields.io/badge/DB-MySQL-orange.svg)](https://www.mysql.com/)
 
-## 🌟 核心功能
+> **轨迹 Cloud 系统的身份认证与用户管理核心基石**
 
-- **全方位身份认证**：
-    - 支持传统的邮箱/验证码登录。
-    - 集成 GitHub、微信 (扫码) 等多种社交账号登录方案。
-- **智能化会话管理**：
-    - 基于 **Sa-Token** 实现高性能的 Token 分发与管理。
-    - 支持多端在线控制、强制下线及并发登录限制。
-- **RBAC 权限体系**：
-    - 提供细粒度的角色、权限校验。
-    - 集成 `@AuthCheck` 注解，实现声明式权限管控。
-- **安全保障**：
-    - 分布式频率限制 (Rate Limiter)。
-    - 完善的脱敏逻辑，确保用户信息安全。
-
-## 🛠️ 技术栈
-
-- **框架**: Spring Boot 3.5.9, MyBatis-Plus 3.5.12
-- **认证**: Sa-Token 1.44.0
-- **数据库**: MySQL 8.4
-- **缓存**: Redis (用于验证码存储与分布式 Session)
-- **消息**: RabbitMQ (处理异步数据统计或通知)
-
-## 📡 核心 API 概览
-
-| 模块      | 路径                       | 方法   | 描述           |
-|:--------|:-------------------------|:-----|:-------------|
-| **认证**  | `/api/user/login/email`  | POST | 邮箱验证码登录      |
-| **第三方** | `/api/user/login/github` | GET  | GitHub 授权跳转  |
-| **用户**  | `/api/user/get/login`    | GET  | 获取当前登录信息     |
-| **管理**  | `/api/user/list/page/vo` | POST | 分页获取用户 (管理员) |
-
-## 🚀 启动与运行
-
-- **服务端口**: `8081`
-- **默认命名空间**: `trajectory-cloud`
-- **依赖服务**: Nacos, MySQL, Redis, RabbitMQ
+**用户服务** 是系统的安全底座，负责全周期的账号生命周期管理、多渠道身份认证、细粒度权限管控、以及分布式 Session 调度。
 
 ---
 
-**维护者**: StephenQiu30  
+## 🌟 核心功能
+
+-   **🔐 多维度身份认证**：支持邮箱验证码、社交账号（GitHub、微信扫码）等多种登录方式，集成 OAuth2 流程。
+-   **🚀 高性能会话管理**：基于 **Sa-Token** 实现。支持多端在线监控、强制下线、同端互斥登录等高级特性。
+-   **🛡️ RBAC 权限体系**：提供基于角色与权限的精细化访问控制，支持 `@AuthCheck` 高级注解实现声明式拦截。
+-   **⚡ 安全响应机制**：内置分布式频率限制器（Rate Limiter），防御暴力破解；完善的数据脱敏过滤器保证隐私安全。
+
+---
+
+## 🛠️ 技术栈
+
+-   **核心框架**：Spring Boot 3.5.x + MyBatis-Plus 3.5.x
+-   **认证鉴权**：Sa-Token 1.44.x (Reactor 支持)
+-   **存储方案**：MySQL 8.4 (持久化) + Redis (分布式 Session & 验证码缓存)
+-   **消息驱动**：RabbitMQ (用于分析用户轨迹或发送通知)
+-   **文档工具**：Knife4j (Swagger 3)
+
+---
+
+## 📡 核心 API 概览
+
+| 模块 | 路径 | 方法 | 说明 |
+| :--- | :--- | :--- | :--- |
+| **基础认证** | `/api/user/login/email` | `POST` | 邮箱验证码快捷登录 |
+| **三方集成** | `/api/user/login/github` | `GET` | 发起 GitHub 授权流程 |
+| **状态查询** | `/api/user/get/login` | `GET` | 实时获取当前登录用户信息 |
+| **权限管理** | `/api/user/list/page/vo` | `POST` | 用户列表深度检索 (Admin) |
+
+---
+
+## 📂 项目结构
+
+```text
+trajectory-user-service
+├── controller/     # 接口层 (RESTful API)
+├── service/        # 业务逻辑层 (登录、三方集成、管理)
+├── mapper/         # 数据持久层
+├── model/          # 领域模型 (Entity, DTO, VO)
+└── manager/        # 第三方平台对接 (GitHub, Redis 等)
+```
+
+---
+
+## 🚀 启动与运行
+
+-   **服务端口**: `8081`
+-   **Nacos 命名空间**: `trajectory-cloud`
+-   **前置依赖**: Nacos, MySQL 8, Redis, RabbitMQ
+-   **快速运行**:
+    ```bash
+    mvn spring-boot:run -Dspring-boot.run.profiles=dev
+    ```
+
+---
+
+**维护者**: [StephenQiu30](https://github.com/StephenQiu30)  
 **版本**: 1.0.0

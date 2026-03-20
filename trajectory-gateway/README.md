@@ -1,76 +1,84 @@
-# trajectory-gateway
+# trajectory-gateway (系统网关)
 
-`trajectory-cloud` 微服务架构的统一 API 入口，基于 **Spring Cloud Gateway (WebFlux)** 构建。
+[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2022.x-blue.svg)](https://spring.io/projects/spring-cloud-gateway)
+[![Sa-Token](https://img.shields.io/badge/Auth-Sa--Token%20Reactor-brightgreen.svg)](https://sa-token.cc/)
+[![Nacos](https://img.shields.io/badge/Config-Nacos-blue.svg)](https://nacos.io/)
 
-## 核心能力
+> **轨迹 Cloud 的统一流量入口：基于 Spring Cloud Gateway 的高性能 API 网关**
 
-| 能力      | 说明                                                           |
-|---------|--------------------------------------------------------------|
-| 动态路由    | 基于 Nacos 服务发现 + LoadBalancer，按路径前缀转发到下游微服务                   |
-| 统一认证    | 集成 Sa-Token (Reactor)，非白名单请求强制校验 Token，用户信息注入下游请求头           |
-| 请求头净化   | 最高优先级过滤器，剥离外部伪造的敏感请求头（`from-source` / `userId` / `userName`） |
-| 分布式限流   | 基于 Redis 令牌桶，支持 IP / 用户ID / API 路径三种维度限流                     |
-| 访问日志    | 记录请求耗时、状态码、客户端IP，生成 `X-Trace-Id` 实现链路追踪，异步上报到日志服务            |
-| 全局异常处理  | 统一 JSON 错误响应，覆盖 `401` / `503` / `504` / `500` 等场景            |
-| 跨域 CORS | 全局跨域配置，`DedupeResponseHeader` 去重                             |
-
-## 项目结构
-
-```
-gateway/
-├── GatewayApplication.java           # 启动类
-├── config/
-│   ├── RateLimitConfig.java           # 限流 KeyResolver（IP / 用户 / 路径）
-│   └── WebClientConfig.java           # LoadBalanced WebClient（日志上报）
-├── constant/
-│   └── GatewayConstant.java           # 网关公共常量
-├── filter/
-│   ├── GlobalHeaderSanitizeFilter.java # 请求头净化（order=HIGHEST_PRECEDENCE）
-│   ├── GlobalAuthFilter.java          # Sa-Token 认证（order=-98）
-│   └── GlobalLogFilter.java           # 访问日志 + 链路追踪（order=-200）
-└── handler/
-    └── GlobalExceptionHandler.java    # 全局异常处理
-```
-
-## 过滤器执行链
-
-```
-请求 → HeaderSanitize → Log(start) → Auth → 路由 → 响应 → Log(end) → 客户端
-```
-
-| 过滤器                          | Order                | 职责                                       |
-|------------------------------|----------------------|------------------------------------------|
-| `GlobalHeaderSanitizeFilter` | `HIGHEST_PRECEDENCE` | 剥离外部伪造的敏感请求头                             |
-| `GlobalLogFilter`            | `-200`               | 记录请求开始、注入 `X-Trace-Id`、响应后上报日志           |
-| `GlobalAuthFilter`           | `-98`                | Sa-Token 认证，注入 `userId` / `userName` 到下游 |
-
-## 路由映射
-
-| 路由 ID                             | 路径                     | 目标服务                                   | 限流策略        |
-|-----------------------------------|------------------------|----------------------------------------|-------------|
-| `trajectory-user-service`         | `/api/user/**`         | `lb://trajectory-user-service`         | IP · 10/s   |
-| ``                                | `/api/post/**`         | `lb://`                                | User · 20/s |
-| `trajectory-search-service`       | `/api/search/**`       | `lb://trajectory-search-service`       | User · 20/s |
-| `trajectory-notification-service` | `/api/notification/**` | `lb://trajectory-notification-service` | User · 20/s |
-| `trajectory-file-service`         | `/api/file/**`         | `lb://trajectory-file-service`         | User · 10/s |
-| `trajectory-mail-service`         | `/api/mail/**`         | `lb://trajectory-mail-service`         | IP · 5/s    |
-| `trajectory-ai-service`           | `/api/ai/**`           | `lb://trajectory-ai-service`           | User · 5/s  |
-| `trajectory-log-service`          | `/api/log/**`          | `lb://trajectory-log-service`          | User · 10/s |
-| `trajectory-websocket-service`    | `/api/websocket/**`    | `lb://trajectory-websocket-service`    | —           |
-
-## 运行依赖
-
-- **Nacos** — 服务发现 + 配置中心
-- **Redis** — Sa-Token 会话存储 + 限流计数
-
-## 启动配置
-
-| 配置项        | 值                  |
-|------------|--------------------|
-| 端口         | `8080`             |
-| Nacos 命名空间 | `trajectory-cloud` |
-| Profile    | `default` / `prod` |
+**系统网关** 作为微服务集群的唯一入口，承担着流量路由、安全认证、请求洗净、分布式限流及全链路追踪的核心职责。
 
 ---
 
-**维护者**: StephenQiu30 · **版本**: 1.0.0
+## 🚀 核心能力
+
+| 能力 | 说明 | 亮点 |
+| :--- | :--- | :--- |
+| **动态路由** | 基于 Nacos 服务发现，按路径前缀实现 lb 负载均衡转发 | 高可用、易扩展 |
+| **统一认证** | 集成 Sa-Token (Reactor 版)，强制校验 Token 并下发会话信息 | 分布式 Session 共享 |
+| **请求洗净** | 最高优先级过滤器，彻底剥离伪造的敏感请求头（如 `userId`, `userName`） | 生产级安全保障 |
+| **分布式限流** | 基于 Redis 令牌桶算法，支持 IP、用户、API 三维精准限流 | 流量洪峰保护 |
+| **全链路追踪** | 注入 `X-Trace-Id`，记录请求全生命周期耗时日志并异步上报 | 快速问题定位 |
+| **全局异常** | 统一定义 JSON 容错响应，覆盖网关层所有异常场景 | 友好错误提示 |
+
+---
+
+## 🛠️ 过滤器执行链路
+
+```mermaid
+graph LR
+    A[客户端请求] --> B[HeaderSanitize]
+    B --> C[Log - Start]
+    C --> D[Sa-Token Auth]
+    D --> E[Redis RateLimit]
+    E --> F[内网服务路由]
+    F --> G[Log - End]
+    G --> H[客户端响应]
+```
+
+### 过滤器细节
+
+| 过滤器名称 | Order (优先级) | 关键职责 |
+| :--- | :--- | :--- |
+| `GlobalHeaderSanitizeFilter` | `HIGHEST` | 阻断外部伪造敏感字段，确保后端受保护 |
+| `GlobalLogFilter` | `-200` | 初始化 `X-Trace-Id`，统计全程响应耗时 |
+| `GlobalAuthFilter` | `-98` | 状态机校验，注入 `userId` 到请求上下文 |
+
+---
+
+## 📡 路由映射概览 (Routes)
+
+| 物理 ID | 匹配路径 | 转发目标 (lb) |
+| :--- | :--- | :--- |
+| `user-service` | `/api/user/**` | `trajectory-user-service` |
+| `ai-service` | `/api/ai/**` | `trajectory-ai-service` |
+| `notif-service` | `/api/notification/**` | `trajectory-notification-service` |
+| `search-service` | `/api/search/**` | `trajectory-search-service` |
+| `file-service` | `/api/file/**` | `trajectory-file-service` |
+
+---
+
+## 📂 项目结构
+
+```text
+trajectory-gateway
+├── config/         # 限流算法与 WebClient 配置
+├── filter/         # 核心过滤器链实现
+├── handler/        # 网关层全局异常处理 (JsonError)
+├── util/           # 响应封装与上下文搜索工具
+└── GatewayApplication.java # 网关入口
+```
+
+---
+
+## 🏃 启动与运行
+
+-   **服务端口**: `8080`
+-   **Nacos 命名空间**: `trajectory-cloud`
+-   **关键依赖**: Nacos (配置/服务中心), Redis (限流与鉴权)
+-   **配置参考**: 见 `trajectory-cloud-gateway.yml` 于 Nacos
+
+---
+
+**维护者**: [StephenQiu30](https://github.com/StephenQiu30)  
+**版本**: 1.0.0

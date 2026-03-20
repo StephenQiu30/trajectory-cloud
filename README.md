@@ -1,241 +1,144 @@
-# 轨迹-基于AIGC的数据可视化平台
+# 轨迹 Cloud (Trajectory Cloud)
 
-基于 **Spring Cloud Alibaba** 深度构建的分布式微服务解决方案，旨在打造一款智能、高效的数据可视化平台，采用最新的 **Java 21
-** 和 **Spring Boot 3.5.9** 技术栈。
+<div align="center">
 
-## 🌟 项目亮点
+![轨迹](./docs/轨迹.png)
 
-- **前沿技术栈**：全面拥抱 Java 21 特性，集成 Spring Boot 3.5.x 与 Spring Cloud 2025。
-- **完善的微服务生态**：全方位的服务矩阵，包括 AI 服务、全文检索、实时通信等。
-- **智能化增强**：集成 **LangChain4j** 大模型能力，支持阿里云通义千问 (DashScope) 深度适配。
-- **AI 赋能业务**：支持**智能数据分析**与**可视化图表生成**，通过 RabbitMQ 实现异步生成任务的稳健处理。
-- **高性能异步架构**：基于 RabbitMQ 实现智能分析任务的异步分发与处理。
-- **全链路日志采集**：集成了详尽的操作日志以及 AI Token 使用追踪体系，支持 ELK 日志收集。
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)
+![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2022.x-blue.svg)
+![React](https://img.shields.io/badge/React-18.x-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![GitHub Stars](https://img.shields.io/github/stars/StephenQiu30/trajectory-cloud?style=flat-square&label=Stars&logo=github)
+![GitHub Forks](https://img.shields.io/github/forks/StephenQiu30/trajectory-cloud?style=flat-square&label=Forks&logo=github)
+![GitHub Issues](https://img.shields.io/github/issues/StephenQiu30/trajectory-cloud?style=flat-square&label=Issues&logo=github)
 
-## 🏗️ 架构概览
+**基于 AIGC 的行业领先智能 BI 报表分析平台**
 
-```mermaid
-graph TD
-    Client[客户端/前端] --> Gateway[API 网关: Gateway]
-    Gateway --> User[用户服务: User]
-    Gateway --> Post[帖子服务: Post]
-    Gateway --> Search[搜索服务: Search]
-    Gateway --> AI[智能化服务: AI]
-    
-    Post -- "1. 触发总结/同步" --> MQ[RabbitMQ]
-    AI -- "2. 处理生成/分析" --> MQ
-    MQ -- "3. 更新数据库/ES" --> Post
-    MQ -- "4. 持久化记录" --> AI
-    
-    subgraph 中间件
-        Nacos[Nacos: 注册/配置]
-        Redis[Redis: 缓存/锁]
-        MQ
-        ES[ES: 搜索引擎]
-        MySQL[MySQL: 数据库]
-    end
-```
+🚀 零门槛的数据洞察，工业级的云原生架构
 
-### 服务模块说明
+[项目主页](https://stephenqhd30.github.io/) | [演示文档](./docs/) | [反馈问题](https://github.com/StephenQiu30/trajectory-cloud/issues) | [参与贡献](#-参与贡献)
 
-| 模块名称 | 功能描述 | 端口 | 状态 |
-| :--- | :--- | :--- | :--- |
-| `trajectory-gateway` | **统一网关**：负责路由转发、鉴权、限流与全链路日志采样 | 8080 | ✅ |
-| `trajectory-user-service` | **用户中心**：支持 GitHub、邮箱验证码登录及 RBAC 权限管理 | 8081 | ✅ |
-| `trajectory-notification-service` | **通知中心**：系统通知分发、基于 MQ/WebSocket 的实时消息推送 | 8082 | ✅ |
-| `trajectory-ai-service` | **智能分析**：集成 LangChain4j，提供 Excel/数据智能分析与图表生成 | 8083 | ✅ |
-| `trajectory-next` | **前端应用**：个人中心、通知、AI 页面与交互展示 | 3000 | ✅ |
+</div>
 
 ---
 
-## 🚀 核心特性
+## 🌟 核心价值
 
-- 🛠 **工程底座**：基于 Java 21 虚拟线程 (探索中) 与 Spring Boot 3.5.x，享受最新 JVM 性能红利。
-- 🤖 **AIGC 深度集成**：内置大模型调用封装，支持对话分析、数据提取与 Echarts 图表配置自动生成。
-- 🔑 **安全认证**：集成 Sa-Token 框架，实现微服务下的分布式会话共享与跨服务鉴权。
-- 📊 **数据驱动**：集成 EasyExcel 提供高性能表格解析，利用 RabbitMQ 完成耗时分析任务的异步削峰治理。
-- 📜 **精益文档**：全量代码覆盖 JavaDoc 与 Swagger (Knife4j) 接口文档，所见即所得。
+在数据爆炸时代，**轨迹 Cloud** 为开发者和企业提供了一套可直接落地的 AI + BI 解决方案：
 
-## 📖 接口指南 (API Documentation)
-
-项目集成 **Knife4j**，启动后可通过以下地址访问各微服务文档：
-
-- **网关聚合文档**: [http://localhost:8080/doc.html](http://localhost:8080/doc.html)
-- **用户服务**: `http://localhost:8081/doc.html`
-- **通知服务**: `http://localhost:8082/doc.html`
-- **AI 服务**: `http://localhost:8083/doc.html`
-
-> [!TIP]
-> 推荐通过 **网关端口 (8080)** 统一查看聚合后的 Open API 文档。
-
-## 🎯 技术栈详情
-
-| 领域 | 核心技术 | 版本 |
-| :--- | :--- | :--- |
-| **Java 运行环境** | JDK | 21 |
-| **AI 框架** | LangChain4j | 0.36.2 |
-| **核心框架** | Spring Boot | 3.5.9 |
-| **微服务治理** | Spring Cloud Alibaba | 2023.0.3.2 |
-| **服务网关** | Spring Cloud Gateway | 5.0.1 |
-| **数据库** | MySQL / MyBatis-Plus | 8.4 / 3.5.12 |
-| **缓存/分布式锁** | Redis / Redisson | 7.4 / 3.48.0 |
-| **消息队列** | RabbitMQ | 4.x |
-| **搜索引擎** | Elasticsearch | 9.3.0 |
-| **认证鉴权** | Sa-Token | 1.44.0 |
-| **文档工具** | Knife4j | 4.5.0 |
-
-## 📮 消息队列 use 指南
-
-项目通过 `trajectory-common-rabbitmq` 模块对 RabbitMQ 进行了深度封装，实现了**生产端事务保障**与**消费端自动化分发**。
-
-### 1. 生产者 (Producer)
-
-注入 `MqSender` 即可发送消息。
-
-- **普通发送**：`mqSender.send(bizType, data)`
-- **事务发送**：`mqSender.sendTransactional(bizType, data)`，确保消息在本地数据库事务提交后才真正发出。
-
-### 2. 消费者 (Consumer)
-
-1. **定义 Handler**：实现 `MqHandler<T>` 接口并注入为 Bean，标记 `@MqIdempotent` 进行分布式去重。
-2. **统一调度**：在具体的 `@RabbitListener` 中调用 `mqConsumerDispatcher.dispatch(rabbitMessage, channel, msg)`，系统将根据
-   `bizType` 自动匹配 Handler 及其对应的 DTO 类型。
-
-> 更多细节请参考 [RabbitMQ 模块文档](trajectory-common/trajectory-common-rabbitmq/README.md)。
-
-## 🚀 快速启动
-
-本项目采用**环境 (Middleware)** 与 **业务 (Application)** 分离的容器化部署方案。
-
-### 0. 前置准备
-
-- **Docker & Docker Compose**: 确保已安装最新版本。
-- **Java 21**: 本地调试需要 JDK 21 环境。
-- **Maven**: 用于项目打包。
-
-### 1. 配置环境变量 (`.env`)
-
-项目根目录下的 [.env](.env) 文件集中管理了所有服务的敏感信息和端口。
-> [!IMPORTANT]
-> 由于安全原因，`.env` 文件不会被提交到仓库。请先通过以下命令创建：
-> `cp .env.example .env`
-> 然后根据你的本地环境修改 `.env` 中的配置。
-
-- `DEFAULT_PASSWORD`: 统一的默认密码。
-- `MYSQL_PORT_EXTERNAL`: 宿主机访问 MySQL 的端口 (默认 `13306`)。
-- `ES_VERSION`: Elasticsearch 版本 (需与本地环境匹配，当前为 `9.3.0-arm64`)。
-
-### 2. 部署基础环境 (Infrastructure - 本地)
-
-基础环境包含 MySQL, Redis, Nacos, RabbitMQ, ES 等中间件。
-
-```bash
-# 启动本地中间件环境
-docker compose -f docker-compose-env.yml up -d
-```
-
-> [!TIP]
-> **初始化工作**：
-> - **数据库**：首次启动后，请根据 `sql/README.md` 执行初始化脚本。
-> - **配置中心**：访问 Nacos (`http://localhost:8848/nacos`) 并导入 `nacos-config/` 下的配置文件。本地用 `nacos-config/import-config.sh`。
->
->   ```bash
->   bash nacos-config/import-config.sh
->   ```
-    >
-- *注：请参考示例文件自行创建生产环境配置。*
-
-### 3. 部署业务项目 (Application - 本地)
-
-在环境准备就绪后，使用本地 `.env` 启动网关及所有业务微服务。
-
-```bash
-# 使用本地环境变量启动业务微服务
-docker compose --env-file .env -f docker-compose.yml up -d --build
-```
-
-### 4. 启动前端 (trajectory-next)
-在后端网关可用后，启动前端（需要先修改 `trajectory-next/.env.production` 里的 `NEXT_PUBLIC_API_BASE_URL` 与 `NEXT_PUBLIC_WS_PORT`，以便构建时烘焙到客户端代码）：
-```bash
-cd trajectory-next
-docker compose up -d --build
-```
-
-### 5. 生产环境部署 (Production)
-
-生产环境推荐使用 `.env.prod` 管理线上变量，并通过 `docker-compose-env.yml` 与 `docker-compose.yml` 分离环境与业务。
-
-1. 准备 `.env.prod`：
-   - `NACOS_HOST`: 生产环境 Nacos 服务器 IP。
-   - `NACOS_PORT`: 默认 `8848`。
-   - `NACOS_AUTH_TOKEN`: **长度 ≥ 32 字节且 Base64 编码** 的密钥，用于 Nacos 认证。
-   - `NACOS_AUTH_IDENTITY_KEY` / `NACOS_AUTH_IDENTITY_VALUE`: 与 Nacos 配置中保持一致。
-   - `GATEWAY_PORT_EXTERNAL` / `USER_SERVICE_PORT_EXTERNAL` / `NOTIFICATION_SERVICE_PORT_EXTERNAL` / `AI_SERVICE_PORT_EXTERNAL`:
-     与实际暴露的宿主机端口保持一致（如均为 `8080`~`8083`）。
-
-2. 启动生产环境中间件：
-
-```bash
-docker compose --env-file .env.prod -f docker-compose-env.yml up -d --build
-```
-
-3. 导入生产环境配置：
-
-```bash
-bash nacos-config/import-config-prod.sh
-```
-
-4. 启动生产环境业务微服务（先 user/notification/ai，不含网关）：
-
-```bash
-docker compose --env-file .env.prod -f docker-compose.yml up -d --build user-service notification-service ai-service
-```
-
-5. 启动生产环境网关：
-
-```bash
-docker compose --env-file .env.prod -f docker-compose.yml up -d --build gateway
-```
-
-### 5. 预发验证（Staging）与冒烟检查
-
-- 环境准备：预发环境使用独立 Nacos/中间件（或独立端口），复制 `.env.prod` 为 `.env.staging`，并在预发 Nacos 中导入 `nacos-config/import-config-prod.sh`。
-- Nacos：确认 `common-*-prod`、`common-secret-prod.properties` 已导入并生效（服务启动时无 config import 错误）。
-- 网关：访问 `http://<host>:8080/doc.html`，以及白名单接口 `/api/user/register`、`/api/user/login`、`/api/notification/page` 返回非 5xx。
-- AI：访问 `/api/ai/analysis`（可用空/最小请求体）返回非 5xx。
-- CORS：浏览器执行跨域预检（使用 `application-prod.yml` 白名单域名），预检返回 200。
-- 存储与异步：确认 RabbitMQ/Redis/MySQL 连接成功，提交一个 MQ 驱动的业务请求后可观测到消费与落库。
-- 生产环境上线后执行同一套冒烟检查。
-
-### 6. 服务访问入口
-
-| 服务                | 宿主机地址                         | 默认账号            | 默认密码                  |
-|:------------------|:------------------------------|:----------------|:----------------------|
-| **API 网关/业务入口**   | `http://localhost:8080`       | -               | -                     |
-| **Nacos 控制台**     | `http://localhost:8848/nacos` | `nacos`         | `nacos`               |
-| **RabbitMQ 管理**   | `http://localhost:15672`      | `guest`         | `guest`               |
-| **MinIO 控制台**     | `http://localhost:19001`      | `admin`         | `${DEFAULT_PASSWORD}` |
-| **Elasticsearch** | `http://localhost:9200`       | `elastic`       | `${DEFAULT_PASSWORD}` |
-| **Kibana 可视化**    | `http://localhost:5601`       | `kibana_system` | `${DEFAULT_PASSWORD}` |
-| **Redis**         | `localhost:16379`             | -               | -                     |
-| **MySQL**         | `localhost:13306`             | `root`          | `${DEFAULT_PASSWORD}` |
-
-### 7. 常见问题排查（部署相关）
-
-- **Nacos 客户端仍然连接 `localhost:8848`**
-  - 确认启动业务微服务时使用了对应环境的 `--env-file` 参数（如 `.env` 或 `.env.prod`）。
-  - 检查容器中的 `SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR` / `SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR` 是否为预期的 Nacos 地址。
-
-- **Nacos 日志报错 `Server check fail, port 9848`**
-  - 确认 `docker-compose-env.yml` 对应的 Nacos 环境栈已正常启动。
-  - 在宿主机执行 `ss -tulnp | grep 9848`，确认 9848 端口已监听并开放。
-  - 检查云服务器安全组 / 防火墙是否放行 9848/9849/9850 端口。
-
-- **Nacos 启动报错 `the length of secret key must great than or equal 32 bytes`**
-  - 确认 `.env.prod` 中的 `NACOS_AUTH_TOKEN` 为 **Base64 编码后的字符串**，且解码后长度 ≥ 32 字节。
-  - 修改后重新通过 `docker compose --env-file .env.prod -f docker-compose-env.yml up -d --build` 重启 Nacos 容器。
+*   **🤖 极简分析流程**：上传文件 -> 输入目标 -> AI 自动生成图表与专业报告。
+*   **🏗️ 生产级微服务**：集成网关限流、分库分表、分布式鉴权等硬核架构。
+*   **⚡ 高度工程化**：全链路采用设计模式优化，代码结构规范直观。
+*   **📱 跨端一致体验**：基于响应式设计，完美适配 PC、平板与手机端。
 
 ---
 
-**维护者**: StephenQiu30  
-**许可证**: [MIT License](LICENSE)
+## 🏗️ 系统架构 (Architecture)
+
+### 1. 总体架构图
+项目基于 Spring Cloud Alibaba 构建，采用微服务架构实现高可用与水平扩展。
+![系统架构图](./docs/无标题-2024-05-11-1445.png)
+
+### 2. 核心业务流程
+AI 赋能的端到端数据分析闭环流程。
+![核心流程图](./docs/image-20241215223010544.png)
+
+### 3. 数据表建模
+基于业务逻辑的高性能数据库建模设计。
+![数据库设计](./docs/image.png)
+
+---
+
+## 🚀 功能特性
+
+-   **🤖 AIGC 智能助手**：深度接入 **LangChain4j**，实现对话式数据探查。
+-   **📊 动态图表实验室**：支持柱状图、折线图、饼图等十余种动态交互图表。
+-   **⚡ 高性能异步流**：RabbitMQ 驱动的异步分析管线，处理大文件不“卡顿”。
+-   **🔍 聚合搜索矩阵**：集成 Elasticsearch，通过多种设计模式优化的复杂搜索。
+-   **🤝 即时反馈中心**：WebSocket 全双工通信，任务进度秒级推送到端。
+-   **🛡️ 分布式安全鉴权**：Sa-Token 护航，支持多端登录同步与权限精细隔离。
+
+---
+
+## 📸 界面视窗 (Gallery)
+
+<div align="center">
+  <img src="./docs/image-20241215223352257.png" width="800" />
+  <p><i>🎨 仪表盘主控台视角 - 简洁、高效、现代</i></p>
+</div>
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td><img src="./docs/image-20241215223421769.png" width="400" /></td>
+      <td><img src="./docs/image-20241215223451610.png" width="400" /></td>
+    </tr>
+    <tr>
+      <td align="center">智能分析与数据管理</td>
+      <td align="center">多维可视化成果展示</td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <img src="./docs/轨迹Mobile作品集.png" width="600" />
+        <br/>
+        <i>📱 移动端、平板端全场景响应式适配效果</i>
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
+## 🛠️ 技术底座
+
+| 维度 | 技术选型 |
+| :--- | :--- |
+| **微服务** | Spring Boot 3 + Spring Cloud Alibaba (Nacos, Sentinel, Gateway) |
+| **鉴权** | Sa-Token (分布式登录、鉴权、单点登录、多端同步) |
+| **存储** | MySQL 8 + ShardingSphere (分库分表) + Redis (缓存/会话) |
+| **中间件** | Elasticsearch 7 + RabbitMQ + Hutool/EasyExcel |
+| **AI/可视化** | LangChain4j + AntV G2/F2 + ECharts |
+
+---
+
+## 📂 模块导引
+
+```text
+trajectory-cloud
+├── trajectory-gateway      # 统一 API 网关 (限流、鉴权、路由)
+├── trajectory-api          # RPC 契约定义与共享 DTO
+├── trajectory-common       # 核心基座封装 (Cache, MQ, MySQL, Web)
+├── trajectory-service      # 业务逻辑微服务
+│   ├── trajectory-user-service         # 鉴权中心、账户体系
+│   ├── trajectory-ai-service           # AI 生成核心、任务调度
+│   └── trajectory-notification-service # 消息枢纽、WebSocket 实现
+```
+
+---
+
+## 🏃 快速启动
+
+1.  **基础设施**：`docker-compose -f docker-compose-env.yml up -d`
+2.  **配置注册**：配置导入 Nacos 控制台。
+3.  **启动后端**：依次运行 `Gateway` 与各 `Service` 模块。
+4.  **运行前端**：`cd ../trajectory-frontend && npm i && npm run dev`
+
+---
+
+## 🛣️ 发展路线 (Roadmap)
+
+- [x] 基于 LangChain4j 的基础 BI 生产管线
+- [ ] 持续集成：GitHub Actions 自动构建与镜像推送
+- [ ] 多模态分析：支持图片的智能解析与图表转换
+- [ ] 移动原生化：基于 React Native 的预览小程序
+
+---
+
+## 🤝 参与贡献
+
+欢迎任何形式的贡献！请阅读 [贡献说明](#-参与贡献) 或直接提交 PR。
+
+---
+
+**维护者**: [StephenQiu30](https://github.com/StephenQiu30)  
+**开源许可**: [MIT License](./LICENSE)
