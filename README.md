@@ -33,18 +33,18 @@
 
 ---
 
-## 🏗️ 系统架构 (Architecture)
+## 🏗️ 系统图谱 (Architecture & Flow)
 
-### 1. 总体架构图
+### 1. 总体架构图 (System Architecture)
 项目基于 Spring Cloud Alibaba 构建，采用微服务架构实现高可用与水平扩展。
 ![系统架构图](./docs/无标题-2024-05-11-1445.png)
 
-### 2. 核心业务流程
-AI 赋能的端到端数据分析闭环流程。
-![核心流程图](./docs/image-20241215223010544.png)
+### 2. 处理流程图 (Processing Flow)
+AI 赋能的端到端数据分析闭环流程，从原始数据到智能报告的转换路径。
+![处理流程图](./docs/image-20241215223010544.png)
 
-### 3. 数据表建模
-基于业务逻辑的高性能数据库建模设计。
+### 3. 持久化建模 (Database Design)
+基于业务逻辑的高性能数据库建模设计，确保大数据量下的查询效率。
 ![数据库设计](./docs/image.png)
 
 ---
@@ -60,7 +60,7 @@ AI 赋能的端到端数据分析闭环流程。
 
 ---
 
-## 📸 界面视窗 (Gallery)
+## 📸 界面视窗 (Showcase Gallery)
 
 <div align="center">
   <img src="./docs/image-20241215223352257.png" width="800" />
@@ -122,15 +122,6 @@ trajectory-cloud
 2.  **配置注册**：配置导入 Nacos 控制台。
 3.  **启动后端**：依次运行 `Gateway` 与各 `Service` 模块。
 4.  **运行前端**：`cd ../trajectory-frontend && npm i && npm run dev`
-
----
-
-## 🛣️ 发展路线 (Roadmap)
-
-- [x] 基于 LangChain4j 的基础 BI 生产管线
-- [ ] 持续集成：GitHub Actions 自动构建与镜像推送
-- [ ] 多模态分析：支持图片的智能解析与图表转换
-- [ ] 移动原生化：基于 React Native 的预览小程序
 
 ---
 

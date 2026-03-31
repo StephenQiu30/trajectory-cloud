@@ -1,12 +1,18 @@
 # trajectory-gateway (系统网关)
 
+<div align="center">
+  <img src="../docs/轨迹.png" width="200" />
+</div>
+
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2022.x-blue.svg)](https://spring.io/projects/spring-cloud-gateway)
 [![Sa-Token](https://img.shields.io/badge/Auth-Sa--Token%20Reactor-brightgreen.svg)](https://sa-token.cc/)
 [![Nacos](https://img.shields.io/badge/Config-Nacos-blue.svg)](https://nacos.io/)
 
 > **轨迹 Cloud 的统一流量入口：基于 Spring Cloud Gateway 的高性能 API 网关**
 
-**系统网关** 作为微服务集群的唯一入口，承担着流量路由、安全认证、请求洗净、分布式限流及全链路追踪的核心职责。
+## 🗺️ 系统架构
+
+![系统架构图](../docs/无标题-2024-05-11-1445.png)
 
 ---
 
@@ -36,14 +42,6 @@ graph LR
     G --> H[客户端响应]
 ```
 
-### 过滤器细节
-
-| 过滤器名称 | Order (优先级) | 关键职责 |
-| :--- | :--- | :--- |
-| `GlobalHeaderSanitizeFilter` | `HIGHEST` | 阻断外部伪造敏感字段，确保后端受保护 |
-| `GlobalLogFilter` | `-200` | 初始化 `X-Trace-Id`，统计全程响应耗时 |
-| `GlobalAuthFilter` | `-98` | 状态机校验，注入 `userId` 到请求上下文 |
-
 ---
 
 ## 📡 路由映射概览 (Routes)
@@ -53,21 +51,6 @@ graph LR
 | `user-service` | `/api/user/**` | `trajectory-user-service` |
 | `ai-service` | `/api/ai/**` | `trajectory-ai-service` |
 | `notif-service` | `/api/notification/**` | `trajectory-notification-service` |
-| `search-service` | `/api/search/**` | `trajectory-search-service` |
-| `file-service` | `/api/file/**` | `trajectory-file-service` |
-
----
-
-## 📂 项目结构
-
-```text
-trajectory-gateway
-├── config/         # 限流算法与 WebClient 配置
-├── filter/         # 核心过滤器链实现
-├── handler/        # 网关层全局异常处理 (JsonError)
-├── util/           # 响应封装与上下文搜索工具
-└── GatewayApplication.java # 网关入口
-```
 
 ---
 
@@ -75,7 +58,7 @@ trajectory-gateway
 
 -   **服务端口**: `8080`
 -   **Nacos 命名空间**: `trajectory-cloud`
--   **关键依赖**: Nacos (配置/服务中心), Redis (限流与鉴权)
+-   **关键依赖**: Nacos, Redis
 -   **配置参考**: 见 `trajectory-cloud-gateway.yml` 于 Nacos
 
 ---
